@@ -12,16 +12,16 @@
  *   --notes <text>
  *   --business-critical true|false
  */
-const cli = require('../lib/cli');
+const cli = require("../lib/cli");
 
 const args = process.argv.slice(2);
 const [slug, featureId, description] = cli.positionals(args);
 
 if (!slug || !featureId || !description) {
   cli.usage(
-    'Usage: ./create-requirement.js <project-slug> <feature-uuid> <description> [options]',
-    'Options: --type, --status, --release <uuid>, --secondary-feature <uuid>, --source, --notes, --business-critical true|false',
-    'Example: ./create-requirement.js spechub abc-123 "The system shall allow users to log in" --status Untested'
+    "Usage: ./create-requirement.js <project-slug> <feature-uuid> <description> [options]",
+    "Options: --type, --status, --release <uuid>, --secondary-feature <uuid>, --source, --notes, --business-critical true|false",
+    'Example: ./create-requirement.js spechub abc-123 "The system shall allow users to log in" --status Untested',
   );
 }
 
@@ -31,17 +31,17 @@ cli.run(async () => {
   const project = await cli.resolveProjectSlug(client, slug);
 
   const body = cli.buildBody(flags, {
-    type: 'requirementType',
-    status: 'status',
-    release: 'releaseId',
-    'secondary-feature': 'secondaryFeatureId',
-    source: 'source',
-    notes: 'notes',
-    'business-critical': { key: 'businessCritical', transform: cli.bool },
+    type: "requirementType",
+    status: "status",
+    release: "releaseId",
+    "secondary-feature": "secondaryFeatureId",
+    source: "source",
+    notes: "notes",
+    "business-critical": { key: "businessCritical", transform: cli.bool },
   });
   Object.assign(body, { projectId: project.id, featureId, description });
 
-  const res = await client.post('/api/v1/requirement', body);
+  const res = await client.post("/api/v1/requirement", body);
   const req = res.data.data;
 
   console.log(`\nRequirement created successfully!\n`);

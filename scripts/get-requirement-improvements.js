@@ -3,12 +3,15 @@
  * Get AI-suggested improved requirement descriptions.
  * Usage: ./get-requirement-improvements.js <project-slug> <requirement-uuid> [<requirement-uuid> ...] [--instance <name>]
  */
-const cli = require('../lib/cli');
+const cli = require("../lib/cli");
 
 const [slug, ...requirementIDs] = cli.positionals(process.argv.slice(2));
 
 if (!slug || requirementIDs.length === 0) {
-  cli.usage('Usage: ./get-requirement-improvements.js <project-slug> <requirement-uuid> [<requirement-uuid> ...]', 'Example: ./get-requirement-improvements.js spechub abc-123 def-456');
+  cli.usage(
+    "Usage: ./get-requirement-improvements.js <project-slug> <requirement-uuid> [<requirement-uuid> ...]",
+    "Example: ./get-requirement-improvements.js spechub abc-123 def-456",
+  );
 }
 
 cli.run(async () => {
@@ -17,17 +20,17 @@ cli.run(async () => {
 
   // requirementIDs uses style=form, explode=false: pass as a single
   // comma-separated param (?requirementIDs=uuid1,uuid2), not repeated params.
-  const res = await client.get('/api/v1/requirement/improve', {
-    params: { projectId: project.id, requirementIDs: requirementIDs.join(',') },
+  const res = await client.get("/api/v1/requirement/improve", {
+    params: { projectId: project.id, requirementIDs: requirementIDs.join(",") },
   });
 
   const improvements = res.data.requirementImprovements;
   const keys = Object.keys(improvements);
 
-  if (keys.length === 0) return console.log('No improvements returned.');
+  if (keys.length === 0) return console.log("No improvements returned.");
 
   console.log(`\n=== Requirement Improvements ===\n`);
-  keys.forEach(id => {
+  keys.forEach((id) => {
     console.log(`Requirement ID: ${id}`);
     console.log(`Suggested text: ${improvements[id]}`);
     console.log();

@@ -1,15 +1,19 @@
 # SpecHub Skill for Pi
 
-A comprehensive skill for interacting with [SpecHub](https://go.spechub.app) via the REST API. Manage projects, features, requirements, entities, epics, releases, and user roles across multiple instances (production, staging, local).
+A comprehensive skill for interacting with [SpecHub](https://go.spechub.app) via
+the REST API. Manage projects, features, requirements, entities, epics,
+releases, and user roles across multiple instances (production, staging, local).
 
 ## Features
 
-✅ **Full CRUD operations** - Create, read, update, and delete all SpecHub resources  
-✅ **Multiple instances** - Manage production, staging, and local environments  
-✅ **Human-readable refs** - Reference requirements and entities by ref (e.g. "1.23") instead of UUIDs  
-✅ **Rich filtering** - Filter requirements and entities by feature, epic, release, secondary feature, or refs  
-✅ **AI context endpoints** - Get rich Markdown context for projects, epics, and features  
-✅ **Deprecation support** - Include or exclude deprecated items from list operations  
+✅ **Full CRUD operations** - Create, read, update, and delete all SpecHub
+resources ✅ **Multiple instances** - Manage production, staging, and local
+environments ✅ **Human-readable refs** - Reference requirements and entities by
+ref (e.g. "1.23") instead of UUIDs ✅ **Rich filtering** - Filter requirements
+and entities by feature, epic, release, secondary feature, or refs ✅ **AI
+context endpoints** - Get rich Markdown context for projects, epics, and
+features ✅ **Deprecation support** - Include or exclude deprecated items from
+list operations
 
 ## Quick Start
 
@@ -32,7 +36,8 @@ cd ~/.pi/agent/skills/spechub && npm install
   --default
 ```
 
-Get your Personal Access Token from your SpecHub account settings at https://go.spechub.app.
+Get your Personal Access Token from your SpecHub account settings at
+https://go.spechub.app.
 
 ### 3. Verify Authentication
 
@@ -42,11 +47,13 @@ Get your Personal Access Token from your SpecHub account settings at https://go.
 
 ## Authentication
 
-SpecHub uses **Personal Access Tokens (PATs)** with automatic JWT bearer token refresh:
+SpecHub uses **Personal Access Tokens (PATs)** with automatic JWT bearer token
+refresh:
 
 1. **PAT** - Long-lived token from your SpecHub account settings
 2. **JWT** - Short-lived bearer token obtained by exchanging your PAT
-3. **Auto-refresh** - Tokens are cached and refreshed automatically when within 60 seconds of expiry
+3. **Auto-refresh** - Tokens are cached and refreshed automatically when within
+   60 seconds of expiry
 
 PATs are stored securely in `instances.json` (gitignored).
 
@@ -106,7 +113,7 @@ All scripts accept `--instance <name>` to target a specific instance:
 ./scripts/update-requirement.js spechub <uuid> --description "Updated description"
 ```
 
-### Delete Resources (⚠️  permanent)
+### Delete Resources (⚠️ permanent)
 
 ```bash
 # Delete by ref (recommended)
@@ -147,18 +154,19 @@ UUIDs are needed for API operations but should be secondary in output.
 
 All list endpoints support filtering:
 
-| Parameter | Applicable To | Description |
-|-----------|---------------|-------------|
-| `featureId` | Entity, Requirement | Filter by feature |
-| `epicId` | Entity, Requirement | Filter by epic |
-| `releaseId` | Entity, Requirement | Filter by release |
-| `secondaryFeatureId` | Entity, Requirement | Filter by secondary feature |
-| `refs` | Entity, Requirement | Comma-separated refs (e.g. `1.23,2.45`) |
-| `includeDeprecated` | Entity, Requirement | Include deprecated items |
+| Parameter            | Applicable To       | Description                             |
+| -------------------- | ------------------- | --------------------------------------- |
+| `featureId`          | Entity, Requirement | Filter by feature                       |
+| `epicId`             | Entity, Requirement | Filter by epic                          |
+| `releaseId`          | Entity, Requirement | Filter by release                       |
+| `secondaryFeatureId` | Entity, Requirement | Filter by secondary feature             |
+| `refs`               | Entity, Requirement | Comma-separated refs (e.g. `1.23,2.45`) |
+| `includeDeprecated`  | Entity, Requirement | Include deprecated items                |
 
 ## Write Action Confirmation
 
-**Important**: Before any write operation (POST, PATCH, DELETE), Pi will present a confirmation prompt showing:
+**Important**: Before any write operation (POST, PATCH, DELETE), Pi will present
+a confirmation prompt showing:
 
 1. HTTP method and endpoint
 2. Target instance (name + URL)
@@ -184,4 +192,5 @@ MIT
 
 ## Support
 
-For issues or questions about the SpecHub API, visit https://spechub.app or contact hello@spechub.app.
+For issues or questions about the SpecHub API, visit https://spechub.app or
+contact hello@spechub.app.

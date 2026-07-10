@@ -11,16 +11,16 @@
  *   --notes <text>
  *   --business-critical true|false
  */
-const cli = require('../lib/cli');
+const cli = require("../lib/cli");
 
 const args = process.argv.slice(2);
 const [slug, featureId, entityName] = cli.positionals(args);
 
 if (!slug || !featureId || !entityName) {
   cli.usage(
-    'Usage: ./create-entity.js <project-slug> <feature-uuid> <entity-name> [options]',
-    'Options: --release <uuid>, --secondary-feature <uuid>, --status, --source, --notes, --business-critical true|false',
-    'Example: ./create-entity.js spechub abc-123 "Order"'
+    "Usage: ./create-entity.js <project-slug> <feature-uuid> <entity-name> [options]",
+    "Options: --release <uuid>, --secondary-feature <uuid>, --status, --source, --notes, --business-critical true|false",
+    'Example: ./create-entity.js spechub abc-123 "Order"',
   );
 }
 
@@ -30,16 +30,16 @@ cli.run(async () => {
   const project = await cli.resolveProjectSlug(client, slug);
 
   const body = cli.buildBody(flags, {
-    release: 'releaseId',
-    'secondary-feature': 'secondaryFeatureId',
-    status: 'status',
-    source: 'source',
-    notes: 'notes',
-    'business-critical': { key: 'businessCritical', transform: cli.bool },
+    release: "releaseId",
+    "secondary-feature": "secondaryFeatureId",
+    status: "status",
+    source: "source",
+    notes: "notes",
+    "business-critical": { key: "businessCritical", transform: cli.bool },
   });
   Object.assign(body, { projectId: project.id, featureId, entityName });
 
-  const res = await client.post('/api/v1/entity', body);
+  const res = await client.post("/api/v1/entity", body);
   const entity = res.data.data;
 
   console.log(`\nEntity created successfully!\n`);

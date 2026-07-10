@@ -2,7 +2,9 @@
 
 ## Overview
 
-SpecHub provides AI context endpoints that return comprehensive, structured **plain text** data optimized for AI analysis. These are the **primary way** to access project and feature data.
+SpecHub provides AI context endpoints that return comprehensive, structured
+**plain text** data optimized for AI analysis. These are the **primary way** to
+access project and feature data.
 
 ## Why Use AI Context Endpoints?
 
@@ -14,6 +16,7 @@ SpecHub provides AI context endpoints that return comprehensive, structured **pl
 ## Endpoint Structure
 
 ### Project Context
+
 ```
 GET https://go.spechub.app/<org-slug>/<project-slug>/_/debug/ai-context
 Cookie: session=YOUR_SESSION_TOKEN
@@ -23,12 +26,14 @@ User-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Geck
 **Example**: `https://go.spechub.app/my-org/my-project/_/debug/ai-context`
 
 Returns plain text including:
+
 - Project name and description
 - User roles and permissions
 - Data model with entity definitions and fields
 - Complete context for AI analysis
 
 ### Feature Context
+
 ```
 GET https://go.spechub.app/<org-slug>/<project-slug>/<feature-ref>/_/debug/ai-context
 Cookie: session=YOUR_SESSION_TOKEN
@@ -38,6 +43,7 @@ User-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Geck
 **Example**: `https://go.spechub.app/my-org/my-project/124/_/debug/ai-context`
 
 Returns plain text including:
+
 - Feature name and description
 - All requirements for the feature
 - Complete context for feature analysis
@@ -45,12 +51,14 @@ Returns plain text including:
 ## Usage in Scripts
 
 ### Get Project Context
+
 ```bash
 ./scripts/get-project-context.js my-org my-project
 ./scripts/get-project-context.js my-org my-project output.txt   # Save to file
 ```
 
 ### Get Feature Context
+
 ```bash
 ./scripts/get-feature-context.js my-org my-project 124
 ./scripts/get-feature-context.js my-org my-project 124 output.txt   # Save to file
@@ -59,6 +67,7 @@ Returns plain text including:
 ## When to Use Each Endpoint
 
 ### Use Project Context When:
+
 - Analyzing the entire project
 - Getting an overview of all features
 - Understanding the data model
@@ -66,6 +75,7 @@ Returns plain text including:
 - Answering project-level questions
 
 ### Use Feature Context When:
+
 - Diving into a specific feature
 - Analyzing feature requirements
 - Answering feature-specific questions
@@ -73,11 +83,13 @@ Returns plain text including:
 ## Authentication
 
 Both endpoints require cookie-based authentication:
+
 ```
 Cookie: session=YOUR_SESSION_TOKEN
 ```
 
 Get a session via:
+
 ```bash
 ./scripts/login.js
 ```
@@ -92,4 +104,5 @@ Get a session via:
 Organization: `my-org`, Project: `my-project`, Feature: `124`
 
 - **Project Context**: `https://go.spechub.app/my-org/my-project/_/debug/ai-context`
-- **Feature Context**: `https://go.spechub.app/my-org/my-project/124/_/debug/ai-context`
+- **Feature Context**:
+  `https://go.spechub.app/my-org/my-project/124/_/debug/ai-context`

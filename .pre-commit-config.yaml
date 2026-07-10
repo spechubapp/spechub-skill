@@ -1,0 +1,14 @@
+# See https://prek.j178.dev for more information.
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v5.0.0
+    hooks:
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      - id: check-yaml
+      - id: check-json
+      - id: check-added-large-files
+  - repo: https://github.com/34j/mirrors-prettier
+    rev: v3.9.5
+    hooks:
+      - id: prettier

@@ -11,13 +11,15 @@
  *   --refs <1.2,3.4>            Filter by fully qualified refs (integers only)
  *   --include-deprecated        Include deprecated entities
  */
-const cli = require('../lib/cli');
+const cli = require("../lib/cli");
 
 const args = process.argv.slice(2);
 const [slug] = cli.positionals(args);
 
 if (!slug) {
-  cli.usage('Usage: ./get-entities.js <project-slug> [--feature <uuid>] [--epic <uuid>] [--release <uuid>] [--refs <1.2,3.4>] [--include-deprecated]');
+  cli.usage(
+    "Usage: ./get-entities.js <project-slug> [--feature <uuid>] [--epic <uuid>] [--release <uuid>] [--refs <1.2,3.4>] [--include-deprecated]",
+  );
 }
 
 cli.run(async () => {
@@ -26,29 +28,31 @@ cli.run(async () => {
   const project = await cli.resolveProjectSlug(client, slug);
 
   const params = cli.buildBody(flags, {
-    feature: 'featureId',
-    epic: 'epicId',
-    release: 'releaseId',
-    'secondary-feature': 'secondaryFeatureId',
-    refs: 'refs',
-    'include-deprecated': { key: 'includeDeprecated', transform: cli.bool },
+    feature: "featureId",
+    epic: "epicId",
+    release: "releaseId",
+    "secondary-feature": "secondaryFeatureId",
+    refs: "refs",
+    "include-deprecated": { key: "includeDeprecated", transform: cli.bool },
   });
   params.projectId = project.id;
 
-  const entities = await cli.fetchAll(client, '/api/v1/entity', params);
+  const entities = await cli.fetchAll(client, "/api/v1/entity", params);
 
   console.log(`\n=== Entities for project: ${project.name} ===\n`);
-  if (entities.length === 0) return console.log('No entities found.');
+  if (entities.length === 0) return console.log("No entities found.");
 
   entities.forEach((entity, i) => {
-    const status = entity.status ? ` (${entity.status})` : '';
+    const status = entity.status ? ` (${entity.status})` : "";
     console.log(`${entity.fullyQualifiedRef}. ${entity.entityName}${status}`);
     if (entity.description) {
       console.log(`   Description: ${entity.description}`);
     }
     if (entity.fields && entity.fields.length > 0) {
       console.log(`   Fields: ${entity.fields.length} field(s)`);
-      entity.fields.forEach(f => console.log(`      - ${f.name} (${f.type})`));
+      entity.fields.forEach((f) =>
+        console.log(`      - ${f.name} (${f.type})`),
+      );
     }
     console.log(`   ID: ${entity.id}`);
     console.log();

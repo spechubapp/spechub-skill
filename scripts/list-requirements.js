@@ -11,13 +11,15 @@
  *   --refs <1.2,3.4>            Filter by fully qualified refs (integers only)
  *   --include-deprecated        Include deprecated requirements
  */
-const cli = require('../lib/cli');
+const cli = require("../lib/cli");
 
 const args = process.argv.slice(2);
 const [slug] = cli.positionals(args);
 
 if (!slug) {
-  cli.usage('Usage: ./list-requirements.js <project-slug> [--feature <uuid>] [--epic <uuid>] [--release <uuid>] [--refs <1.2,3.4>] [--include-deprecated]');
+  cli.usage(
+    "Usage: ./list-requirements.js <project-slug> [--feature <uuid>] [--epic <uuid>] [--release <uuid>] [--refs <1.2,3.4>] [--include-deprecated]",
+  );
 }
 
 cli.run(async () => {
@@ -26,23 +28,27 @@ cli.run(async () => {
   const project = await cli.resolveProjectSlug(client, slug);
 
   const params = cli.buildBody(flags, {
-    feature: 'featureId',
-    epic: 'epicId',
-    release: 'releaseId',
-    'secondary-feature': 'secondaryFeatureId',
-    refs: 'refs',
-    'include-deprecated': { key: 'includeDeprecated', transform: cli.bool },
+    feature: "featureId",
+    epic: "epicId",
+    release: "releaseId",
+    "secondary-feature": "secondaryFeatureId",
+    refs: "refs",
+    "include-deprecated": { key: "includeDeprecated", transform: cli.bool },
   });
   params.projectId = project.id;
 
-  const requirements = await cli.fetchAll(client, '/api/v1/requirement', params);
+  const requirements = await cli.fetchAll(
+    client,
+    "/api/v1/requirement",
+    params,
+  );
 
-  if (requirements.length === 0) return console.log('No requirements found.');
+  if (requirements.length === 0) return console.log("No requirements found.");
 
   console.log(`\n=== Requirements for project: ${project.name} ===\n`);
-  requirements.forEach(r => {
-    const type = r.requirementType ? ` [${r.requirementType}]` : '';
-    const status = r.status ? ` (${r.status})` : '';
+  requirements.forEach((r) => {
+    const type = r.requirementType ? ` [${r.requirementType}]` : "";
+    const status = r.status ? ` (${r.status})` : "";
     console.log(`${r.fullyQualifiedRef}${type}${status}`);
     console.log(`  ${r.description}`);
     console.log(`  ID: ${r.id}`);

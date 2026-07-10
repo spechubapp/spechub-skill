@@ -1,30 +1,40 @@
 ---
 name: spechub
-description: Read and analyze data from SpecHub (go.spechub.app), and create or update projects, epics, features, requirements, releases, user roles, and entities. Supports multiple named instances (production, staging, local, etc.). Use when the user wants to view, browse, analyze, or modify SpecHub data.
+description:
+  Read and analyze data from SpecHub (go.spechub.app), and create or update
+  projects, epics, features, requirements, releases, user roles, and entities.
+  Supports multiple named instances (production, staging, local, etc.). Use when
+  the user wants to view, browse, analyze, or modify SpecHub data.
 license: MIT
-compatibility: Requires Node.js 18+, axios, dotenv. Access to SpecHub API with personal access token.
+compatibility:
+  Requires Node.js 18+, axios, dotenv. Access to SpecHub API with personal
+  access token.
 ---
 
 # SpecHub Integration
 
-This skill provides **read and write** access to SpecHub via the REST API.
-It supports **multiple named instances** — each with its own URL and access token.
+This skill provides **read and write** access to SpecHub via the REST API. It
+supports **multiple named instances** — each with its own URL and access token.
 
 ## ⚠️ Write Action Policy — MANDATORY
 
-Before executing **any** write operation (POST, PATCH, or DELETE) against the API,
-you **must** pause and present a confirmation prompt to the user that includes:
+Before executing **any** write operation (POST, PATCH, or DELETE) against the
+API, you **must** pause and present a confirmation prompt to the user that
+includes:
 
 1. The **HTTP method** and full **endpoint path** (e.g. `POST /api/v1/feature`)
 2. The **instance** the request will be sent to (name + URL)
-3. The **request body** as formatted JSON, or for DELETE the resource identifier and name
+3. The **request body** as formatted JSON, or for DELETE the resource identifier
+   and name
 
-Do **not** run the script or make the API call until the user explicitly confirms.
-Acceptable confirmation responses include "yes", "go ahead", "confirm", "do it", or similar.
-If the user says no or asks for changes, update the plan and show a new confirmation prompt.
+Do **not** run the script or make the API call until the user explicitly
+confirms. Acceptable confirmation responses include "yes", "go ahead",
+"confirm", "do it", or similar. If the user says no or asks for changes, update
+the plan and show a new confirmation prompt.
 
-This rule applies to every write action, even when the user has already described what they want.
-Never skip confirmation on the grounds that the intent is obvious.
+This rule applies to every write action, even when the user has already
+described what they want. Never skip confirmation on the grounds that the intent
+is obvious.
 
 ## Security Considerations
 
@@ -32,11 +42,14 @@ Never skip confirmation on the grounds that the intent is obvious.
 
 - **Authentication**: Uses Personal Access Tokens with full account permissions
 - **Write operations**: Can create, update, and permanently delete resources
-- **Token storage**: PATs are stored in `instances.json` (gitignored) in plain text
-- **Confirmation required**: All write operations require explicit user confirmation before execution
+- **Token storage**: PATs are stored in `instances.json` (gitignored) in plain
+  text
+- **Confirmation required**: All write operations require explicit user
+  confirmation before execution
 - **No undo**: Delete operations are permanent and cannot be reversed
 
 **Best practices:**
+
 - Use separate PATs for different instances (production vs staging)
 - Store PATs securely and rotate them periodically
 - Review confirmation prompts carefully before approving
@@ -88,18 +101,20 @@ All scripts accept `--instance <name>` anywhere in the argument list:
 ```
 
 **Instance resolution order** (first match wins):
+
 1. `--instance <name>` flag in the command line
 2. `SPECHUB_INSTANCE` environment variable
 3. Default set in `instances.json`
-4. `SPECHUB_PAT` / `SPECHUB_API_URL` env vars (backward compat with old `.env` setup)
+4. `SPECHUB_PAT` / `SPECHUB_API_URL` env vars (backward compat with old `.env`
+   setup)
 
 ## Authentication
 
 Each instance authenticates with a **personal access token (PAT)**:
 
 1. The PAT is stored in `instances.json` for the named instance.
-2. Before each API call the client exchanges the PAT for a short-lived JWT bearer
-   token via `POST /api/v1/auth/token/refresh`.
+2. Before each API call the client exchanges the PAT for a short-lived JWT
+   bearer token via `POST /api/v1/auth/token/refresh`.
 3. The bearer token is used in `Authorization: Bearer <token>` on all requests.
 4. Tokens are cached per-instance URL and refreshed automatically when within 60
    seconds of expiry.
@@ -112,8 +127,9 @@ Base URL is per-instance (e.g. `https://api.spechub.app`).
 
 All endpoints require `Authorization: Bearer <token>`.
 
-> **Note:** The public OpenAPI spec (`/.well-known/openapi.yaml`) documents all endpoints
-> including read (GET), write (POST/PATCH), and delete (DELETE) operations.
+> **Note:** The public OpenAPI spec (`/.well-known/openapi.yaml`) documents all
+> endpoints including read (GET), write (POST/PATCH), and delete (DELETE)
+> operations.
 
 ### Authentication
 
@@ -123,87 +139,87 @@ All endpoints require `Authorization: Bearer <token>`.
 
 ### Organizations
 
-| Method | Path                  | Description                                      |
-| ------ | --------------------- | ------------------------------------------------ |
+| Method | Path                   | Description                                          |
+| ------ | ---------------------- | ---------------------------------------------------- |
 | GET    | `/api/v1/organization` | List organizations the caller belongs to (paginated) |
 
 ### Projects
 
-| Method | Path                             | Description                                       |
-| ------ | -------------------------------- | ------------------------------------------------- |
-| GET    | `/api/v1/project`                | List all projects (paginated)                     |
-| POST   | `/api/v1/project`                | Create a new project                              |
-| GET    | `/api/v1/project/{projectID}`    | Get project detail by UUID                        |
-| PATCH  | `/api/v1/project/{projectID}`    | Update a project (partial update)                 |
-| DELETE | `/api/v1/project/{projectID}`    | Delete a project (permanent deletion)             |
-| GET    | `/api/v1/project/context`        | Get project context (Markdown), `?projectID=UUID` |
+| Method | Path                          | Description                                       |
+| ------ | ----------------------------- | ------------------------------------------------- |
+| GET    | `/api/v1/project`             | List all projects (paginated)                     |
+| POST   | `/api/v1/project`             | Create a new project                              |
+| GET    | `/api/v1/project/{projectID}` | Get project detail by UUID                        |
+| PATCH  | `/api/v1/project/{projectID}` | Update a project (partial update)                 |
+| DELETE | `/api/v1/project/{projectID}` | Delete a project (permanent deletion)             |
+| GET    | `/api/v1/project/context`     | Get project context (Markdown), `?projectID=UUID` |
 
 ### Epics
 
-| Method | Path                              | Description                                       |
-| ------ | --------------------------------- | ------------------------------------------------- |
-| GET    | `/api/v1/epic`                    | List epics for a project, `?projectID=UUID`       |
-| POST   | `/api/v1/epic`                    | Create a new epic                                 |
-| GET    | `/api/v1/epic/{epicID}`           | Get epic detail                                   |
-| PATCH  | `/api/v1/epic/{epicID}`           | Update an epic (partial update)                   |
-| DELETE | `/api/v1/epic/{epicID}`           | Delete an epic (permanent deletion)               |
-| GET    | `/api/v1/epic/context`            | Get epic context (Markdown), `?epicID=UUID`       |
-| GET    | `/api/v1/epic/{epicID}/feature`   | List features associated with an epic             |
-| PUT    | `/api/v1/epic/{epicID}/feature`   | Replace the complete set of features for an epic  |
+| Method | Path                            | Description                                      |
+| ------ | ------------------------------- | ------------------------------------------------ |
+| GET    | `/api/v1/epic`                  | List epics for a project, `?projectID=UUID`      |
+| POST   | `/api/v1/epic`                  | Create a new epic                                |
+| GET    | `/api/v1/epic/{epicID}`         | Get epic detail                                  |
+| PATCH  | `/api/v1/epic/{epicID}`         | Update an epic (partial update)                  |
+| DELETE | `/api/v1/epic/{epicID}`         | Delete an epic (permanent deletion)              |
+| GET    | `/api/v1/epic/context`          | Get epic context (Markdown), `?epicID=UUID`      |
+| GET    | `/api/v1/epic/{epicID}/feature` | List features associated with an epic            |
+| PUT    | `/api/v1/epic/{epicID}/feature` | Replace the complete set of features for an epic |
 
 ### Features
 
-| Method | Path                            | Description                                       |
-| ------ | ------------------------------- | ------------------------------------------------- |
-| GET    | `/api/v1/feature`               | List features, `?projectID=UUID`                  |
-| POST   | `/api/v1/feature`               | Create a new feature                              |
-| GET    | `/api/v1/feature/{featureID}`   | Get feature detail                                |
-| PATCH  | `/api/v1/feature/{featureID}`   | Update a feature (partial update)                 |
-| DELETE | `/api/v1/feature/{featureID}`   | Delete a feature (permanent deletion)             |
-| GET    | `/api/v1/feature/context`       | Get feature context (Markdown), `?featureID=UUID` |
+| Method | Path                          | Description                                       |
+| ------ | ----------------------------- | ------------------------------------------------- |
+| GET    | `/api/v1/feature`             | List features, `?projectID=UUID`                  |
+| POST   | `/api/v1/feature`             | Create a new feature                              |
+| GET    | `/api/v1/feature/{featureID}` | Get feature detail                                |
+| PATCH  | `/api/v1/feature/{featureID}` | Update a feature (partial update)                 |
+| DELETE | `/api/v1/feature/{featureID}` | Delete a feature (permanent deletion)             |
+| GET    | `/api/v1/feature/context`     | Get feature context (Markdown), `?featureID=UUID` |
 
 ### Requirements
 
-| Method | Path                                    | Description                                       |
-| ------ | --------------------------------------- | ------------------------------------------------- |
-| GET    | `/api/v1/requirement`                   | List requirements, `?projectID=UUID`              |
-| POST   | `/api/v1/requirement`                   | Create a new requirement                          |
-| GET    | `/api/v1/requirement/{requirementID}`   | Get requirement detail                            |
-| PATCH  | `/api/v1/requirement/{requirementID}`   | Update a requirement (partial)                    |
-| DELETE | `/api/v1/requirement/{requirementID}`   | Delete a requirement (permanent deletion)         |
-| GET    | `/api/v1/requirement/improve`           | Suggest improved descriptions (AI), `?projectID=UUID&requirementIDs=...` |
+| Method | Path                                  | Description                                                              |
+| ------ | ------------------------------------- | ------------------------------------------------------------------------ |
+| GET    | `/api/v1/requirement`                 | List requirements, `?projectID=UUID`                                     |
+| POST   | `/api/v1/requirement`                 | Create a new requirement                                                 |
+| GET    | `/api/v1/requirement/{requirementID}` | Get requirement detail                                                   |
+| PATCH  | `/api/v1/requirement/{requirementID}` | Update a requirement (partial)                                           |
+| DELETE | `/api/v1/requirement/{requirementID}` | Delete a requirement (permanent deletion)                                |
+| GET    | `/api/v1/requirement/improve`         | Suggest improved descriptions (AI), `?projectID=UUID&requirementIDs=...` |
 
 ### Entities
 
-| Method | Path                                | Description                                   |
-| ------ | ----------------------------------- | --------------------------------------------- |
-| GET    | `/api/v1/entity`                    | List entities, `?projectID=UUID`              |
-| POST   | `/api/v1/entity`                    | Create a new entity                           |
-| GET    | `/api/v1/entity/{entityID}`         | Get entity detail                             |
-| PATCH  | `/api/v1/entity/{entityID}`         | Update an entity (partial)                    |
-| DELETE | `/api/v1/entity/{entityID}`         | Delete an entity (permanent, idempotent)      |
-| PATCH  | `/api/v1/entity/{entityID}/fields`  | Upsert fields on an entity (create or update) |
-| DELETE | `/api/v1/entity/{entityID}/fields`  | Delete fields from an entity (idempotent)     |
+| Method | Path                               | Description                                   |
+| ------ | ---------------------------------- | --------------------------------------------- |
+| GET    | `/api/v1/entity`                   | List entities, `?projectID=UUID`              |
+| POST   | `/api/v1/entity`                   | Create a new entity                           |
+| GET    | `/api/v1/entity/{entityID}`        | Get entity detail                             |
+| PATCH  | `/api/v1/entity/{entityID}`        | Update an entity (partial)                    |
+| DELETE | `/api/v1/entity/{entityID}`        | Delete an entity (permanent, idempotent)      |
+| PATCH  | `/api/v1/entity/{entityID}/fields` | Upsert fields on an entity (create or update) |
+| DELETE | `/api/v1/entity/{entityID}/fields` | Delete fields from an entity (idempotent)     |
 
 ### Releases
 
-| Method | Path                            | Description                      |
-| ------ | ------------------------------- | -------------------------------- |
-| GET    | `/api/v1/release`               | List releases, `?projectID=UUID` |
-| POST   | `/api/v1/release`               | Create a new release             |
-| GET    | `/api/v1/release/{releaseID}`   | Get release detail               |
-| PATCH  | `/api/v1/release/{releaseID}`   | Update a release (partial)       |
-| DELETE | `/api/v1/release/{releaseID}`   | Delete a release (permanent deletion) |
+| Method | Path                          | Description                           |
+| ------ | ----------------------------- | ------------------------------------- |
+| GET    | `/api/v1/release`             | List releases, `?projectID=UUID`      |
+| POST   | `/api/v1/release`             | Create a new release                  |
+| GET    | `/api/v1/release/{releaseID}` | Get release detail                    |
+| PATCH  | `/api/v1/release/{releaseID}` | Update a release (partial)            |
+| DELETE | `/api/v1/release/{releaseID}` | Delete a release (permanent deletion) |
 
 ### User Roles
 
-| Method | Path                              | Description                        |
-| ------ | --------------------------------- | ---------------------------------- |
-| GET    | `/api/v1/userrole`                | List user roles, `?projectID=UUID` |
-| POST   | `/api/v1/userrole`                | Create a new user role             |
-| GET    | `/api/v1/userrole/{userRoleID}`   | Get user role detail               |
-| PATCH  | `/api/v1/userrole/{userRoleID}`   | Update a user role (partial)       |
-| DELETE | `/api/v1/userrole/{userRoleID}`   | Delete a user role (permanent deletion) |
+| Method | Path                            | Description                             |
+| ------ | ------------------------------- | --------------------------------------- |
+| GET    | `/api/v1/userrole`              | List user roles, `?projectID=UUID`      |
+| POST   | `/api/v1/userrole`              | Create a new user role                  |
+| GET    | `/api/v1/userrole/{userRoleID}` | Get user role detail                    |
+| PATCH  | `/api/v1/userrole/{userRoleID}` | Update a user role (partial)            |
+| DELETE | `/api/v1/userrole/{userRoleID}` | Delete a user role (permanent deletion) |
 
 ### Pagination
 
@@ -215,17 +231,17 @@ handles this automatically.
 
 Many list endpoints support additional query parameters to filter results:
 
-| Parameter            | Applicable to                                    | Description                                      |
-| -------------------- | ------------------------------------------------ | ------------------------------------------------ |
-| `projectId`          | All list endpoints                               | UUID of the project to scope the request to (required for most list endpoints) |
-| `featureId`          | Entity, Requirement                              | UUID of the feature to filter by                 |
-| `epicId`             | Entity, Requirement, Epic/Feature list           | UUID of the epic to filter by                    |
-| `releaseId`          | Entity, Requirement                              | UUID of the release to filter by                 |
-| `secondaryFeatureId` | Entity, Requirement                              | UUID of the secondary feature to filter by       |
-| `refs`               | Entity, Requirement                              | Comma-separated fully qualified refs e.g. `1.23,2.45` — **both parts must be integers** (`<featureRef>.<requirementRef>`); malformed refs return `400` |
-| `includeDeprecated`  | Entity, Requirement                              | Whether to include deprecated items (default: `false`) |
-| `cursor`             | All list endpoints                               | Opaque pagination cursor                         |
-| `limit`              | All list endpoints                               | Page size (default 100, min 20, max 500)         |
+| Parameter            | Applicable to                          | Description                                                                                                                                            |
+| -------------------- | -------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `projectId`          | All list endpoints                     | UUID of the project to scope the request to (required for most list endpoints)                                                                         |
+| `featureId`          | Entity, Requirement                    | UUID of the feature to filter by                                                                                                                       |
+| `epicId`             | Entity, Requirement, Epic/Feature list | UUID of the epic to filter by                                                                                                                          |
+| `releaseId`          | Entity, Requirement                    | UUID of the release to filter by                                                                                                                       |
+| `secondaryFeatureId` | Entity, Requirement                    | UUID of the secondary feature to filter by                                                                                                             |
+| `refs`               | Entity, Requirement                    | Comma-separated fully qualified refs e.g. `1.23,2.45` — **both parts must be integers** (`<featureRef>.<requirementRef>`); malformed refs return `400` |
+| `includeDeprecated`  | Entity, Requirement                    | Whether to include deprecated items (default: `false`)                                                                                                 |
+| `cursor`             | All list endpoints                     | Opaque pagination cursor                                                                                                                               |
+| `limit`              | All list endpoints                     | Page size (default 100, min 20, max 500)                                                                                                               |
 
 ### Context endpoints
 
@@ -235,21 +251,31 @@ analysis. Request these with `Accept: text/markdown` and `responseType: 'text'`.
 
 ## Request Bodies
 
-All write endpoints accept `application/json`. PATCH endpoints are partial — only
-include the fields you want to change.
+All write endpoints accept `application/json`. PATCH endpoints are partial —
+only include the fields you want to change.
 
 ### Organization
 
-Organizations are the top-level container. Use `GET /api/v1/organization` to list
-orgs the caller belongs to. You need an `organizationID` to create a project.
+Organizations are the top-level container. Use `GET /api/v1/organization` to
+list orgs the caller belongs to. You need an `organizationID` to create a
+project.
 
 ### Project
 
 **Create** (`POST /api/v1/project`) — required: `organizationID`, `name`, `slug`
+
 ```json
-{ "organizationID": "<uuid>", "name": "My project", "slug": "my-project", "description": "...", "brief": "..." }
+{
+  "organizationID": "<uuid>",
+  "name": "My project",
+  "slug": "my-project",
+  "description": "...",
+  "brief": "..."
+}
 ```
+
 **Update** (`PATCH /api/v1/project/{projectID}`) — all optional
+
 ```json
 { "name": "...", "slug": "...", "description": "...", "brief": "..." }
 ```
@@ -257,108 +283,174 @@ orgs the caller belongs to. You need an `organizationID` to create a project.
 ### Epic
 
 **Create** (`POST /api/v1/epic`) — required: `projectID`, `name`
+
 ```json
 { "projectID": "<uuid>", "name": "Checkout redesign", "description": "..." }
 ```
+
 **Update** (`PATCH /api/v1/epic/{epicID}`) — all optional
+
 ```json
 { "name": "...", "description": "...", "notes": "...", "slug": "..." }
 ```
 
 ### Epic Features
 
-**List** (`GET /api/v1/epic/{epicID}/feature`) — paginated list of features belonging to the epic.
+**List** (`GET /api/v1/epic/{epicID}/feature`) — paginated list of features
+belonging to the epic.
 
-**Replace** (`PUT /api/v1/epic/{epicID}/feature`) — idempotent replacement of the epic's feature set.
+**Replace** (`PUT /api/v1/epic/{epicID}/feature`) — idempotent replacement of
+the epic's feature set.
+
 ```json
 { "featureIDs": ["<uuid>", "<uuid>"] }
 ```
-Any existing associations not in the list are removed. Duplicate IDs are ignored.
-Returns `422` if any feature UUID does not exist, or if any feature belongs to a different project than the epic.
+
+Any existing associations not in the list are removed. Duplicate IDs are
+ignored. Returns `422` if any feature UUID does not exist, or if any feature
+belongs to a different project than the epic.
 
 ### Feature
 
 **Create** (`POST /api/v1/feature`) — required: `projectID`, `name`
+
 ```json
-{ "projectID": "<uuid>", "name": "User auth", "description": "...", "source": "...", "notes": "..." }
+{
+  "projectID": "<uuid>",
+  "name": "User auth",
+  "description": "...",
+  "source": "...",
+  "notes": "..."
+}
 ```
+
 **Update** (`PATCH /api/v1/feature/{featureID}`) — all optional
+
 ```json
 { "name": "...", "description": "...", "notes": "...", "source": "..." }
 ```
 
 ### Requirement
 
-**Create** (`POST /api/v1/requirement`) — required: `projectID`, `featureID`, `description`
+**Create** (`POST /api/v1/requirement`) — required: `projectID`, `featureID`,
+`description`
+
 ```json
 {
-  "projectID": "<uuid>", "featureID": "<uuid>",
+  "projectID": "<uuid>",
+  "featureID": "<uuid>",
   "description": "The system shall ...",
   "requirementType": "Functional",
   "status": "Untested",
-  "releaseID": "<uuid>", "secondaryFeatureID": "<uuid>",
-  "source": "...", "notes": "...", "acceptanceCriteria": ["..."], "businessCritical": false
+  "releaseID": "<uuid>",
+  "secondaryFeatureID": "<uuid>",
+  "source": "...",
+  "notes": "...",
+  "acceptanceCriteria": ["..."],
+  "businessCritical": false
 }
 ```
-`requirementType`: `Functional` | `Design` | `Performance`
-`status`: `Untested` | `Passing` | `Failing`
 
-**Update** (`PATCH /api/v1/requirement/{requirementID}`) — all optional (same fields minus `projectID`).
-`releaseID` and `secondaryFeatureID` may be set to `null` to unset them.
+`requirementType`: `Functional` | `Design` | `Performance` `status`: `Untested`
+| `Passing` | `Failing`
+
+**Update** (`PATCH /api/v1/requirement/{requirementID}`) — all optional (same
+fields minus `projectID`). `releaseID` and `secondaryFeatureID` may be set to
+`null` to unset them.
 
 ### Requirement Improvements
 
-**Get** (`GET /api/v1/requirement/improve?projectID=<uuid>&requirementIDs=<uuid>,<uuid>`)
+**Get**
+(`GET /api/v1/requirement/improve?projectID=<uuid>&requirementIDs=<uuid>,<uuid>`)
 
 Returns AI-generated improved descriptions keyed by requirement ID:
+
 ```json
 { "requirementImprovements": { "<uuid>": "Improved description text..." } }
 ```
 
-- `requirementIDs` is comma-separated in a **single** query parameter (`style=form, explode=false`): `?requirementIDs=uuid1,uuid2` — do **not** repeat the parameter
-- All requirements must belong to the specified `projectID`; any requirement from another project returns `404`
-- Each requirement is processed concurrently by the AI pipeline; individual failures produce an empty string for that key rather than aborting the whole request
+- `requirementIDs` is comma-separated in a **single** query parameter
+  (`style=form, explode=false`): `?requirementIDs=uuid1,uuid2` — do **not**
+  repeat the parameter
+- All requirements must belong to the specified `projectID`; any requirement
+  from another project returns `404`
+- Each requirement is processed concurrently by the AI pipeline; individual
+  failures produce an empty string for that key rather than aborting the whole
+  request
 
 ### Entity Fields
 
-**Upsert** (`PATCH /api/v1/entity/{entityID}/fields`) — include `id` to update existing, omit to create new
+**Upsert** (`PATCH /api/v1/entity/{entityID}/fields`) — include `id` to update
+existing, omit to create new
+
 ```json
 {
   "fields": [
     { "id": "<uuid>", "name": "email", "type": "Text/Short", "required": true },
-    { "name": "age", "type": "Number/Integer", "required": false, "sampleValue": "25" }
+    {
+      "name": "age",
+      "type": "Number/Integer",
+      "required": false,
+      "sampleValue": "25"
+    }
   ]
 }
 ```
-Field `type` values: `Text/Short`, `Text/UUID`, `Text/Slug`, `Text/Long (Plain)`, `Text/Long (Rich)`, `Text/URI`, `Text/Email`, `Number/Integer`, `Number/Decimal`, `Choice/One`, `Choice/Many`, `Reference/One`, `Reference/Many (Unordered)`, `Reference/Many (Ordered)`, `Date and time`, `Boolean`, `File/Image`, `File/Any`
 
-**Delete fields** (`DELETE /api/v1/entity/{entityID}/fields`) — delete specific fields by ID using query parameters
+Field `type` values: `Text/Short`, `Text/UUID`, `Text/Slug`,
+`Text/Long (Plain)`, `Text/Long (Rich)`, `Text/URI`, `Text/Email`,
+`Number/Integer`, `Number/Decimal`, `Choice/One`, `Choice/Many`,
+`Reference/One`, `Reference/Many (Unordered)`, `Reference/Many (Ordered)`,
+`Date and time`, `Boolean`, `File/Image`, `File/Any`
+
+**Delete fields** (`DELETE /api/v1/entity/{entityID}/fields`) — delete specific
+fields by ID using query parameters
+
 ```
 DELETE /api/v1/entity/{entityID}/fields?fieldIDs=<uuid>&fieldIDs=<uuid>
 ```
 
 ### Entity
 
-**Create** (`POST /api/v1/entity`) — required: `projectID`, `featureID`, `entityName`
+**Create** (`POST /api/v1/entity`) — required: `projectID`, `featureID`,
+`entityName`
+
 ```json
 {
-  "projectID": "<uuid>", "featureID": "<uuid>", "entityName": "Order",
-  "releaseID": "<uuid>", "secondaryFeatureID": "<uuid>",
-  "status": "Untested", "source": "...", "notes": "...", "acceptanceCriteria": ["..."], "businessCritical": false
+  "projectID": "<uuid>",
+  "featureID": "<uuid>",
+  "entityName": "Order",
+  "releaseID": "<uuid>",
+  "secondaryFeatureID": "<uuid>",
+  "status": "Untested",
+  "source": "...",
+  "notes": "...",
+  "acceptanceCriteria": ["..."],
+  "businessCritical": false
 }
 ```
-**Update** (`PATCH /api/v1/entity/{entityID}`) — all optional (same fields minus `projectID`).
-`releaseID` and `secondaryFeatureID` may be set to `null` to unset them.
+
+**Update** (`PATCH /api/v1/entity/{entityID}`) — all optional (same fields minus
+`projectID`). `releaseID` and `secondaryFeatureID` may be set to `null` to unset
+them.
 
 `status`: `Untested` | `Passing` | `Failing`
 
 ### Release
 
 **Create** (`POST /api/v1/release`) — required: `projectID`, `name`
+
 ```json
-{ "projectID": "<uuid>", "name": "v1.0", "description": "...", "shipped": false }
+{
+  "projectID": "<uuid>",
+  "name": "v1.0",
+  "description": "...",
+  "shipped": false
+}
 ```
+
 **Update** (`PATCH /api/v1/release/{releaseID}`) — all optional
+
 ```json
 { "name": "...", "description": "...", "slug": "...", "shipped": true }
 ```
@@ -366,10 +458,13 @@ DELETE /api/v1/entity/{entityID}/fields?fieldIDs=<uuid>&fieldIDs=<uuid>
 ### User Role
 
 **Create** (`POST /api/v1/userrole`) — required: `projectID`, `name`
+
 ```json
 { "projectID": "<uuid>", "name": "Admin", "description": "..." }
 ```
+
 **Update** (`PATCH /api/v1/userrole/{userRoleID}`) — all optional
+
 ```json
 { "name": "...", "description": "..." }
 ```
@@ -389,33 +484,39 @@ Organization  (list via GET /api/v1/organization)
 ```
 
 Key relationships:
+
 - Features belong to a Project and have an integer `ref` (1, 2, 3…)
-- Requirements and Entities belong to a Feature and have a `fullyQualifiedRef` (`<featureRef>.<itemRef>`)
-- Epics group Features via a many-to-many association (`PUT /api/v1/epic/{epicId}/feature`)
-- Requirements and Entities can optionally reference a `releaseId` and a `secondaryFeatureId`
+- Requirements and Entities belong to a Feature and have a `fullyQualifiedRef`
+  (`<featureRef>.<itemRef>`)
+- Epics group Features via a many-to-many association
+  (`PUT /api/v1/epic/{epicId}/feature`)
+- Requirements and Entities can optionally reference a `releaseId` and a
+  `secondaryFeatureId`
 
 ### Referencing Items
 
 **Always use human-readable refs when referencing requirements and entities:**
+
 - ✅ Use `fullyQualifiedRef` (e.g. "1.23", "2.45") for requirements and entities
 - ✅ Use `ref` (e.g. 1, 2, 3) for features
 - ❌ Don't use UUIDs in user-facing output unless specifically needed
 
-UUIDs are needed for API operations (create, update, delete), but refs should be displayed prominently in output and used when describing items to users.
+UUIDs are needed for API operations (create, update, delete), but refs should be
+displayed prominently in output and used when describing items to users.
 
 ### Key response fields
 
-| Resource           | Notable detail fields                                                                                 |
-| ------------------ | ----------------------------------------------------------------------------------------------------- |
-| `ProjectDetail`    | `description`, `brief`, `webUrl`                                                                      |
-| `EpicDetail`       | `description`, `slug`, `notes`, `created`, `updated`, `webUrl`                                        |
-| `FeatureDetail`    | `description`, `notes`, `source`, `ref` (int), `created`, `updated`, `webUrl`                        |
-| `RequirementDetail`| `requirementType` (`Functional`/`Design`/`Performance`), `status` (`Untested`/`Passing`/`Failing`), `source`, `notes`, `acceptanceCriteria` (array), `automatedTestCoverageType` (`Untested`/`Tested`/`Needs a test`), `secondaryFeatureID`, `businessCritical`, `webUrl` |
-| `EntityDetail`     | `entityName`, `status`, `source`, `notes`, `acceptanceCriteria` (array), `automatedTestCoverageType`, `secondaryFeatureID`, `fields` (EntityFieldDetail array), `created`, `webUrl` |
-| `EntityFieldDetail`| `name`, `type`, `required`, `notes`, `options` (array of strings), `sampleValue`, `defaultValue`, `helpText`, `uiFieldGrouping`, `validations`, `created`, `updated` |
-| `ReleaseDetail`    | `name`, `description`, `shipped`, `created`, `updated`, `webUrl`                                      |
-| `UserRoleDetail`   | `name`, `description`, `created`, `updated`, `webUrl`                                                 |
-| `Organization`     | `id`, `name`, `slug`, `description`, `created`, `updated`                                             |
+| Resource            | Notable detail fields                                                                                                                                                                                                                                                     |
+| ------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `ProjectDetail`     | `description`, `brief`, `webUrl`                                                                                                                                                                                                                                          |
+| `EpicDetail`        | `description`, `slug`, `notes`, `created`, `updated`, `webUrl`                                                                                                                                                                                                            |
+| `FeatureDetail`     | `description`, `notes`, `source`, `ref` (int), `created`, `updated`, `webUrl`                                                                                                                                                                                             |
+| `RequirementDetail` | `requirementType` (`Functional`/`Design`/`Performance`), `status` (`Untested`/`Passing`/`Failing`), `source`, `notes`, `acceptanceCriteria` (array), `automatedTestCoverageType` (`Untested`/`Tested`/`Needs a test`), `secondaryFeatureID`, `businessCritical`, `webUrl` |
+| `EntityDetail`      | `entityName`, `status`, `source`, `notes`, `acceptanceCriteria` (array), `automatedTestCoverageType`, `secondaryFeatureID`, `fields` (EntityFieldDetail array), `created`, `webUrl`                                                                                       |
+| `EntityFieldDetail` | `name`, `type`, `required`, `notes`, `options` (array of strings), `sampleValue`, `defaultValue`, `helpText`, `uiFieldGrouping`, `validations`, `created`, `updated`                                                                                                      |
+| `ReleaseDetail`     | `name`, `description`, `shipped`, `created`, `updated`, `webUrl`                                                                                                                                                                                                          |
+| `UserRoleDetail`    | `name`, `description`, `created`, `updated`, `webUrl`                                                                                                                                                                                                                     |
+| `Organization`      | `id`, `name`, `slug`, `description`, `created`, `updated`                                                                                                                                                                                                                 |
 
 Projects are identified by **UUID** in API calls. Use `resolveProjectSlug()` in
 `lib/api-client.js` to convert a human-readable slug to a UUID.
@@ -576,35 +677,37 @@ All scripts accept `--instance <name>` anywhere in their argument list.
 ```javascript
 // lib/cli.js loads .env and re-exports the api-client helpers, so scripts
 // require a single module. Use lib/api-client directly for library-only usage.
-const { createClient, fetchAll, resolveProjectSlug } = require('../lib/cli');
-const instances = require('../lib/instances');
+const { createClient, fetchAll, resolveProjectSlug } = require("../lib/cli");
+const instances = require("../lib/instances");
 
 // Use the default instance
 const client = await createClient();
 
 // Or target a specific instance explicitly
-const cfg = instances.getConfig('staging');
+const cfg = instances.getConfig("staging");
 const stagingClient = await createClient(cfg);
 
 // Find a project by slug
-const project = await resolveProjectSlug(client, 'spechub');
+const project = await resolveProjectSlug(client, "spechub");
 
 // Create a feature
-const res = await client.post('/api/v1/feature', {
+const res = await client.post("/api/v1/feature", {
   projectID: project.id,
-  name: 'My new feature',
-  description: 'Feature description',
+  name: "My new feature",
+  description: "Feature description",
 });
-console.log('Created:', res.data.data.id);
+console.log("Created:", res.data.data.id);
 
 // Update a requirement
-await client.patch(`/api/v1/requirement/${requirementID}`, { status: 'Passing' });
+await client.patch(`/api/v1/requirement/${requirementID}`, {
+  status: "Passing",
+});
 
 // Get project context (Markdown)
-const ctx = await client.get('/api/v1/project/context', {
+const ctx = await client.get("/api/v1/project/context", {
   params: { projectID: project.id },
-  headers: { Accept: 'text/markdown' },
-  responseType: 'text',
+  headers: { Accept: "text/markdown" },
+  responseType: "text",
 });
 console.log(ctx.data);
 ```
@@ -617,7 +720,8 @@ Shared CLI plumbing so scripts stay small and their API calls stay explicit.
 Re-exports `createClient`, `getAccessToken`, `fetchAll`, `resolveProjectSlug`
 from `lib/api-client`, and adds:
 
-- `parseFlags(args, start=0)` — parse `--flag value` and bare boolean `--flag` options
+- `parseFlags(args, start=0)` — parse `--flag value` and bare boolean `--flag`
+  options
 - `positionals(args)` — non-flag arguments, in order
 - `bool(value)` — interpret a flag value as boolean (`'true'` or bare flag)
 - `buildBody(flags, spec)` — build a JSON body from flags using a declarative
@@ -625,29 +729,31 @@ from `lib/api-client`, and adds:
   flags are included (safe for partial PATCH bodies)
 - `usage(...lines)` — print usage lines to stderr and exit 1
 - `abort(message)` — print `Error: <message>` and exit 1
-- `run(mainFn)` — run an async entrypoint with the uniform RFC 9457 error handler
+- `run(mainFn)` — run an async entrypoint with the uniform RFC 9457 error
+  handler
 - `printContext(client, path, params, { title, outputFile })` — fetch a
   `text/markdown` context endpoint, optionally save it, and print it
 
 Requiring `lib/cli.js` also loads `.env` automatically. A typical script:
 
 ```javascript
-const cli = require('../lib/cli');
+const cli = require("../lib/cli");
 const args = process.argv.slice(2);
 const [slug, name] = cli.positionals(args);
-if (!slug || !name) cli.usage('Usage: ./create-x.js <project-slug> <name>');
+if (!slug || !name) cli.usage("Usage: ./create-x.js <project-slug> <name>");
 
 cli.run(async () => {
   const client = await cli.createClient();
   const project = await cli.resolveProjectSlug(client, slug);
-  const res = await client.post('/api/v1/x', { projectId: project.id, name });
-  console.log('Created', res.data.data.id);
+  const res = await client.post("/api/v1/x", { projectId: project.id, name });
+  console.log("Created", res.data.data.id);
 });
 ```
 
 ### lib/instances.js exports
 
-- `getConfig(name?)` — resolves and returns `{ name, url, pat }` for the given instance name (or default)
+- `getConfig(name?)` — resolves and returns `{ name, url, pat }` for the given
+  instance name (or default)
 - `addOrUpdate(name, url, pat, setDefault)` — add or update an instance
 - `remove(name)` — remove an instance; returns `true` if found
 - `setDefault(name)` — set the default instance; returns `true` if found
@@ -657,13 +763,15 @@ cli.run(async () => {
 ### lib/api-client.js exports
 
 - `createClient(instanceConfig?)` — returns an authenticated axios instance
-- `getAccessToken(instanceConfig?)` — returns the bearer token (refreshing if needed)
+- `getAccessToken(instanceConfig?)` — returns the bearer token (refreshing if
+  needed)
 - `fetchAll(client, path, params)` — fetches all pages of a list endpoint
 - `resolveProjectSlug(client, slug)` — resolves a project slug to its UUID
 
-Both `createClient` and `getAccessToken` accept an optional `{ url, pat }` config object.
-When omitted, the active instance is auto-resolved (via `--instance` flag, `SPECHUB_INSTANCE`
-env var, or the default in `instances.json`).
+Both `createClient` and `getAccessToken` accept an optional `{ url, pat }`
+config object. When omitted, the active instance is auto-resolved (via
+`--instance` flag, `SPECHUB_INSTANCE` env var, or the default in
+`instances.json`).
 
 ### Error responses
 
@@ -678,21 +786,33 @@ Errors follow RFC 9457 `application/problem+json`:
 ```
 
 Scripts surface `title` and `detail` to users:
+
 ```javascript
 .catch(err => console.error(err.response?.data?.detail || err.message))
 ```
 
 ### Rate limiting
 
-The API enforces rate limits. On `429 Too Many Requests`, back off and retry after
-the `Retry-After` header duration.
+The API enforces rate limits. On `429 Too Many Requests`, back off and retry
+after the `Retry-After` header duration.
 
 ## Known Constraints
 
 - **User-Agent**: The client sends `spechub-skill (curl)` which the API expects. No special UA handling is required for API consumers.
-- **Pagination**: Always paginate — lists default to 100 items, max 500; use `fetchAll()` for everything
-- **UUIDs vs Refs**: All resources identified by UUID in the API; use `resolveProjectSlug()` for projects. However, **always display and reference requirements/entities by their `fullyQualifiedRef`** (e.g. "1.23") in user-facing output, not by UUID.
-- **PATCH semantics**: All update endpoints are partial — omitted fields are left unchanged
-- **Project creation**: Requires `organizationId` — use `GET /api/v1/organization` to find your org UUID
-- **Deletion**: All resources support DELETE; deletions are permanent. Entity DELETE and entity field DELETE are idempotent (return `204` on subsequent calls); all other DELETE operations return `404` when the resource doesn't exist.
-- **Deprecated items**: Entities and requirements can be marked as deprecated. By default, list endpoints exclude deprecated items; pass `includeDeprecated=true` to include them.
+- **Pagination**: Always paginate — lists default to 100 items, max 500; use
+  `fetchAll()` for everything
+- **UUIDs vs Refs**: All resources identified by UUID in the API; use
+  `resolveProjectSlug()` for projects. However, **always display and reference
+  requirements/entities by their `fullyQualifiedRef`** (e.g. "1.23") in
+  user-facing output, not by UUID.
+- **PATCH semantics**: All update endpoints are partial — omitted fields are
+  left unchanged
+- **Project creation**: Requires `organizationId` — use
+  `GET /api/v1/organization` to find your org UUID
+- **Deletion**: All resources support DELETE; deletions are permanent. Entity
+  DELETE and entity field DELETE are idempotent (return `204` on subsequent
+  calls); all other DELETE operations return `404` when the resource doesn't
+  exist.
+- **Deprecated items**: Entities and requirements can be marked as deprecated.
+  By default, list endpoints exclude deprecated items; pass
+  `includeDeprecated=true` to include them.
