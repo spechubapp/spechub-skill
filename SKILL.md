@@ -589,6 +589,9 @@ All scripts accept `--instance <name>` anywhere in their argument list.
            --secondary-feature <uuid>, --refs <1.2,3.4>,
            --include-deprecated
 
+./scripts/get-requirement.js <project-slug> <requirement-ref-or-uuid> [--instance <name>]
+  # Get full details of a requirement by ref (e.g. "133.8") or UUID
+
 ./scripts/create-requirement.js <project-slug> <feature-uuid> <description> [options] [--instance <name>]
   Options: --type Functional|Design|Performance
            --status Untested|Passing|Failing|Deprecated
@@ -612,6 +615,9 @@ All scripts accept `--instance <name>` anywhere in their argument list.
   Options: --feature <uuid>, --epic <uuid>, --release <uuid>,
            --secondary-feature <uuid>, --refs <1.2,3.4>,
            --include-deprecated
+
+./scripts/get-entity.js <project-slug> <entity-ref-or-uuid> [--instance <name>]
+  # Get full details of an entity by ref (e.g. "1.1") or UUID
 
 ./scripts/create-entity.js <project-slug> <feature-uuid> <entity-name> [options] [--instance <name>]
   Options: --release <uuid>, --secondary-feature <uuid>, --status Untested|Passing|Failing|Deprecated,
