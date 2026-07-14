@@ -5,10 +5,163 @@ description:
   projects, epics, features, requirements, releases, user roles, and entities.
   Supports multiple named instances (production, staging, local, etc.). Use when
   the user wants to view, browse, analyze, or modify SpecHub data.
+
+  🚨 CRITICAL - Write Action Policy: ALL write operations (POST/PATCH/DELETE)
+  require explicit user confirmation BEFORE execution. Each operation requires
+  its own separate confirmation. Never execute write operations without showing
+  the user exactly what will be changed. This is non-negotiable.
 license: MIT
 compatibility:
   Requires Node.js 18+, axios, dotenv. Access to SpecHub API with personal
   access token.
+---
+
+# 🚨 STOP - READ THIS FIRST 🚨
+
+## ⚠️ Write Action Policy — MANDATORY — EVERY OPERATION
+
+### CRITICAL RULE
+
+Before executing **ANY** write operation (POST, PATCH, or DELETE), you **MUST**:
+
+1. **PAUSE** - Do not execute the operation
+2. **PRESENT** - Show the user exactly what will be changed
+3. **WAIT** - Get explicit confirmation for THIS specific operation
+4. **CONFIRM** - Only proceed if user says yes
+
+### What to Show in Confirmation Prompt
+
+Every confirmation prompt must include:
+
+1. ✅ The **HTTP method** and full **endpoint path** (e.g.
+   `PATCH /api/v1/requirement/abc-123`)
+2. ✅ The **instance** name and URL (e.g. "production -
+   https://api.spechub.app")
+3. ✅ The **complete request body** as formatted JSON
+4. ✅ For PATCH: Show what fields are being changed
+5. ✅ For DELETE: Show what resource will be permanently deleted
+
+### Scope of Confirmation
+
+⚠️ **IMPORTANT:** Each "yes" response applies to **ONE operation only**.
+
+If you need to execute multiple write operations:
+
+- Present them ALL in a single confirmation block, OR
+- Get separate confirmation for EACH operation
+
+**NEVER assume:**
+
+- ❌ That a previous "yes" applies to new operations
+- ❌ That user intent is obvious enough to skip confirmation
+- ❌ That small changes don't need confirmation
+- ❌ That you can batch operations without showing them all
+
+### Examples
+
+#### ✅ CORRECT - Multiple operations, single confirmation
+
+```
+I will execute 3 write operations against production:
+
+1. PATCH /api/v1/requirement/abc-123
+   Instance: production (https://api.spechub.app)
+   Body: {"status": "Passing"}
+
+2. PATCH /api/v1/requirement/def-456
+   Instance: production (https://api.spechub.app)
+   Body: {"status": "Passing"}
+
+3. DELETE /api/v1/requirement/ghi-789
+   Instance: production (https://api.spechub.app)
+   Deleting: Requirement 42.7 "Old requirement"
+
+Do you want to proceed with these operations?
+```
+
+#### ✅ CORRECT - Separate confirmations
+
+```
+I will update requirement 39.12:
+
+PATCH /api/v1/requirement/ade1aea9-eadc-421b-baeb-f920a151d715
+Instance: production (https://api.spechub.app)
+Body: {
+  "description": "New description text",
+  "notes": "Updated per issue #575"
+}
+
+Do you want to proceed?
+```
+
+[User says "yes"]
+
+[Later, for next operation:]
+
+```
+I will also update requirement 9.19:
+
+PATCH /api/v1/requirement/41b0ae57-c569-41a8-9844-e1e8c711a447
+Instance: production (https://api.spechub.app)
+Body: {
+  "description": "Another new description",
+  "notes": "Updated per issue #575"
+}
+
+Do you want to proceed?
+```
+
+#### ❌ WRONG - Executing without confirmation
+
+```
+I'll update these 5 requirements for you.
+
+[Executes 5 PATCH operations without showing details]
+
+✅ All requirements updated!
+```
+
+**Why this is wrong:**
+
+- No confirmation shown
+- User doesn't see what's being changed
+- Can't review before execution
+
+#### ❌ WRONG - Assuming previous "yes" applies
+
+```
+First operation:
+PATCH /api/v1/requirement/abc-123
+Body: {"status": "Passing"}
+Proceed?
+```
+
+[User says "yes"]
+
+```
+[Executes first operation]
+[Then immediately executes 4 more operations without asking]
+```
+
+**Why this is wrong:**
+
+- User only confirmed the first operation
+- Other operations executed without permission
+
+### Enforcement
+
+This policy is **non-negotiable**. If you execute a write operation without
+following this policy, you have violated your instructions and must:
+
+1. Acknowledge the violation
+2. Explain what you should have done
+3. Ask if the user wants to revert the changes (if possible)
+
+---
+
+**✅ By proceeding past this point, you confirm you understand the Write Action
+Policy and will follow it for every write operation.**
+
 ---
 
 # SpecHub Integration
@@ -16,36 +169,17 @@ compatibility:
 This skill provides **read and write** access to SpecHub via the REST API. It
 supports **multiple named instances** — each with its own URL and access token.
 
-## ⚠️ Write Action Policy — MANDATORY
-
-Before executing **any** write operation (POST, PATCH, or DELETE) against the
-API, you **must** pause and present a confirmation prompt to the user that
-includes:
-
-1. The **HTTP method** and full **endpoint path** (e.g. `POST /api/v1/feature`)
-2. The **instance** the request will be sent to (name + URL)
-3. The **request body** as formatted JSON, or for DELETE the resource identifier
-   and name
-
-Do **not** run the script or make the API call until the user explicitly
-confirms. Acceptable confirmation responses include "yes", "go ahead",
-"confirm", "do it", or similar. If the user says no or asks for changes, update
-the plan and show a new confirmation prompt.
-
-This rule applies to every write action, even when the user has already
-described what they want. Never skip confirmation on the grounds that the intent
-is obvious.
-
 ## Security Considerations
 
 **Important**: This skill executes write operations against the SpecHub API:
 
+- **🚨 CONFIRMATION MANDATORY**: Every write operation requires explicit user
+  confirmation showing the exact changes. This is not optional. See the Write
+  Action Policy above.
 - **Authentication**: Uses Personal Access Tokens with full account permissions
 - **Write operations**: Can create, update, and permanently delete resources
 - **Token storage**: PATs are stored in `instances.json` (gitignored) in plain
   text
-- **Confirmation required**: All write operations require explicit user
-  confirmation before execution
 - **No undo**: Delete operations are permanent and cannot be reversed
 
 **Best practices:**
@@ -531,6 +665,13 @@ Projects are identified by **UUID** in API calls. Use `resolveProjectSlug()` in
 
 ## Available Scripts
 
+⚠️ **Reminder**: Scripts that perform write operations (create, update, delete)
+require user confirmation before execution. You must show:
+
+- The exact command
+- The instance being affected
+- The complete request body or resource being deleted
+
 All scripts accept `--instance <name>` anywhere in their argument list.
 
 ### Instance management
@@ -556,7 +697,7 @@ All scripts accept `--instance <name>` anywhere in their argument list.
 ./scripts/list-projects.js [--instance <name>]
 ./scripts/get-project-context.js <slug> [output.md] [--instance <name>]
 ./scripts/analyze-project.js <slug> [--instance <name>]
-./scripts/delete-project.js <project-uuid> [--instance <name>]  # ⚠️  permanent deletion
+./scripts/delete-project.js <project-uuid> [--instance <name>]  # ⚠️  confirmation required - permanent deletion
 ```
 
 ### Epics
@@ -565,10 +706,10 @@ All scripts accept `--instance <name>` anywhere in their argument list.
 ./scripts/list-epics.js <project-slug> [--instance <name>]
 ./scripts/get-epic-context.js <epic-uuid> [output.md] [--instance <name>]
 ./scripts/get-epic-features.js <epic-uuid> [--instance <name>]
-./scripts/set-epic-features.js <epic-uuid> <feature-uuid> [<feature-uuid> ...] [--instance <name>]
-./scripts/create-epic.js <project-slug> <name> [description] [--instance <name>]
-./scripts/update-epic.js <epic-uuid> [--name "..."] [--description "..."] [--notes "..."] [--slug "..."] [--instance <name>]
-./scripts/delete-epic.js <epic-uuid> [--instance <name>]  # ⚠️  permanent deletion
+./scripts/set-epic-features.js <epic-uuid> <feature-uuid> [<feature-uuid> ...] [--instance <name>]  # ⚠️  confirmation required
+./scripts/create-epic.js <project-slug> <name> [description] [--instance <name>]  # ⚠️  confirmation required
+./scripts/update-epic.js <epic-uuid> [--name "..."] [--description "..."] [--notes "..."] [--slug "..."] [--instance <name>]  # ⚠️  confirmation required
+./scripts/delete-epic.js <epic-uuid> [--instance <name>]  # ⚠️  confirmation required - permanent deletion
 ```
 
 ### Features
@@ -576,12 +717,15 @@ All scripts accept `--instance <name>` anywhere in their argument list.
 ```bash
 ./scripts/list-features.js <project-slug> [--instance <name>]
 ./scripts/get-feature-context.js <feature-uuid> [output.md] [--instance <name>]
-./scripts/create-feature.js <project-slug> <name> [description] [--instance <name>]
-./scripts/update-feature.js <feature-uuid> [--name "..."] [--description "..."] [--notes "..."] [--source "..."] [--instance <name>]
-./scripts/delete-feature.js <feature-uuid> [--instance <name>]  # ⚠️  permanent deletion
+./scripts/create-feature.js <project-slug> <name> [description] [--instance <name>]  # ⚠️  confirmation required
+./scripts/update-feature.js <feature-uuid> [--name "..."] [--description "..."] [--notes "..."] [--source "..."] [--instance <name>]  # ⚠️  confirmation required
+./scripts/delete-feature.js <feature-uuid> [--instance <name>]  # ⚠️  confirmation required - permanent deletion
 ```
 
 ### Requirements
+
+⚠️ **Write operations below require confirmation** - show complete request body
+before execution.
 
 ```bash
 ./scripts/list-requirements.js <project-slug> [options] [--instance <name>]
@@ -592,23 +736,26 @@ All scripts accept `--instance <name>` anywhere in their argument list.
 ./scripts/get-requirement.js <project-slug> <requirement-ref-or-uuid> [--instance <name>]
   # Get full details of a requirement by ref (e.g. "133.8") or UUID
 
-./scripts/create-requirement.js <project-slug> <feature-uuid> <description> [options] [--instance <name>]
+./scripts/create-requirement.js <project-slug> <feature-uuid> <description> [options] [--instance <name>]  # ⚠️  confirmation required
   Options: --type Functional|Design|Performance
            --status Untested|Passing|Failing|Deprecated
            --release <uuid>, --secondary-feature <uuid>
            --source, --notes, --business-critical true|false
 
-./scripts/update-requirement.js <project-slug> <requirement-ref-or-uuid> [options] [--instance <name>]
+./scripts/update-requirement.js <project-slug> <requirement-ref-or-uuid> [options] [--instance <name>]  # ⚠️  confirmation required
   Options: --description, --type, --status, --feature <uuid>, --release <uuid>,
            --secondary-feature <uuid>, --source, --notes,
            --acceptance-criteria, --business-critical true|false
 
 ./scripts/get-requirement-improvements.js <project-slug> <requirement-uuid> [<requirement-uuid> ...] [--instance <name>]
 
-./scripts/delete-requirement.js <project-slug> <requirement-ref-or-uuid> [--instance <name>]  # ⚠️  permanent deletion
+./scripts/delete-requirement.js <project-slug> <requirement-ref-or-uuid> [--instance <name>]  # ⚠️  confirmation required - permanent deletion
 ```
 
 ### Entities
+
+⚠️ **Write operations below require confirmation** - show complete request body
+before execution.
 
 ```bash
 ./scripts/get-entities.js <project-slug> [options] [--instance <name>]
@@ -619,16 +766,16 @@ All scripts accept `--instance <name>` anywhere in their argument list.
 ./scripts/get-entity.js <project-slug> <entity-ref-or-uuid> [--instance <name>]
   # Get full details of an entity by ref (e.g. "1.1") or UUID
 
-./scripts/create-entity.js <project-slug> <feature-uuid> <entity-name> [options] [--instance <name>]
+./scripts/create-entity.js <project-slug> <feature-uuid> <entity-name> [options] [--instance <name>]  # ⚠️  confirmation required
   Options: --release <uuid>, --secondary-feature <uuid>, --status Untested|Passing|Failing|Deprecated,
            --source, --notes, --business-critical true|false
 
-./scripts/update-entity.js <project-slug> <entity-ref-or-uuid> [options] [--instance <name>]
+./scripts/update-entity.js <project-slug> <entity-ref-or-uuid> [options] [--instance <name>]  # ⚠️  confirmation required
   Options: --entity-name, --feature <uuid>, --release <uuid>,
            --secondary-feature <uuid>, --status Untested|Passing|Failing|Deprecated, --source, --notes,
            --acceptance-criteria, --business-critical true|false
 
-./scripts/delete-entity.js <project-slug> <entity-ref-or-uuid> [--instance <name>]  # ⚠️  permanent deletion (idempotent)
+./scripts/delete-entity.js <project-slug> <entity-ref-or-uuid> [--instance <name>]  # ⚠️  confirmation required - permanent deletion (idempotent)
 ```
 
 ### Releases
@@ -636,18 +783,18 @@ All scripts accept `--instance <name>` anywhere in their argument list.
 ```bash
 ./scripts/list-releases.js <project-slug> [--instance <name>]
 ./scripts/get-release-context.js <release-uuid> [output.md] [--instance <name>]
-./scripts/create-release.js <project-slug> <name> [description] [--instance <name>]
-./scripts/update-release.js <release-uuid> [--name "..."] [--description "..."] [--slug "..."] [--shipped true|false] [--instance <name>]
-./scripts/delete-release.js <release-uuid> [--instance <name>]  # ⚠️  permanent deletion
+./scripts/create-release.js <project-slug> <name> [description] [--instance <name>]  # ⚠️  confirmation required
+./scripts/update-release.js <release-uuid> [--name "..."] [--description "..."] [--slug "..."] [--shipped true|false] [--instance <name>]  # ⚠️  confirmation required
+./scripts/delete-release.js <release-uuid> [--instance <name>]  # ⚠️  confirmation required - permanent deletion
 ```
 
 ### User Roles
 
 ```bash
 ./scripts/list-userroles.js <project-slug> [--instance <name>]
-./scripts/create-userrole.js <project-slug> <name> [description] [--instance <name>]
-./scripts/update-userrole.js <userrole-uuid> [--name "..."] [--description "..."] [--instance <name>]
-./scripts/delete-userrole.js <userrole-uuid> [--instance <name>]  # ⚠️  permanent deletion
+./scripts/create-userrole.js <project-slug> <name> [description] [--instance <name>]  # ⚠️  confirmation required
+./scripts/update-userrole.js <userrole-uuid> [--name "..."] [--description "..."] [--instance <name>]  # ⚠️  confirmation required
+./scripts/delete-userrole.js <userrole-uuid> [--instance <name>]  # ⚠️  confirmation required - permanent deletion
 ```
 
 ## Common Workflows
