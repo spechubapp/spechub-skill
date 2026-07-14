@@ -8,7 +8,7 @@
  *   --feature <feature-uuid>
  *   --release <release-uuid>
  *   --secondary-feature <feature-uuid>
- *   --status Untested|Passing|Failing
+ *   --status Untested|Passing|Failing|Deprecated
  *   --source <text>
  *   --notes <text>
  *   --acceptance-criteria <text>

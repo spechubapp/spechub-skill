@@ -91,6 +91,7 @@ All scripts accept `--instance <name>` to target a specific instance:
 ./scripts/get-project-context.js spechub [output.md]
 ./scripts/get-epic-context.js <epic-uuid> [output.md]
 ./scripts/get-feature-context.js <feature-uuid> [output.md]
+./scripts/get-release-context.js <release-uuid> [output.md]
 ```
 
 ### Create Resources

@@ -6,7 +6,7 @@
  * Options:
  *   --release <release-uuid>
  *   --secondary-feature <feature-uuid>
- *   --status Untested|Passing|Failing
+ *   --status Untested|Passing|Failing|Deprecated
  *   --source <text>
  *   --notes <text>
  *   --business-critical true|false

@@ -203,13 +203,14 @@ All endpoints require `Authorization: Bearer <token>`.
 
 ### Releases
 
-| Method | Path                          | Description                           |
-| ------ | ----------------------------- | ------------------------------------- |
-| GET    | `/api/v1/release`             | List releases, `?projectID=UUID`      |
-| POST   | `/api/v1/release`             | Create a new release                  |
-| GET    | `/api/v1/release/{releaseID}` | Get release detail                    |
-| PATCH  | `/api/v1/release/{releaseID}` | Update a release (partial)            |
-| DELETE | `/api/v1/release/{releaseID}` | Delete a release (permanent deletion) |
+| Method | Path                          | Description                                       |
+| ------ | ----------------------------- | ------------------------------------------------- |
+| GET    | `/api/v1/release`             | List releases, `?projectId=UUID`                  |
+| POST   | `/api/v1/release`             | Create a new release                              |
+| GET    | `/api/v1/release/{releaseId}` | Get release detail                                |
+| PATCH  | `/api/v1/release/{releaseId}` | Update a release (partial)                        |
+| DELETE | `/api/v1/release/{releaseId}` | Delete a release (permanent deletion)             |
+| GET    | `/api/v1/release/context`     | Get release context (Markdown), `?releaseId=UUID` |
 
 ### User Roles
 
@@ -245,9 +246,10 @@ Many list endpoints support additional query parameters to filter results:
 
 ### Context endpoints
 
-`/api/v1/project/context`, `/api/v1/epic/context`, and `/api/v1/feature/context`
-return `text/markdown` — rich, human-readable context documents ideal for AI
-analysis. Request these with `Accept: text/markdown` and `responseType: 'text'`.
+`/api/v1/project/context`, `/api/v1/epic/context`, `/api/v1/feature/context`,
+and `/api/v1/release/context` return `text/markdown` — rich, human-readable
+context documents ideal for AI analysis. Request these with
+`Accept: text/markdown` and `responseType: 'text'`.
 
 ## Request Bodies
 
@@ -352,7 +354,7 @@ belongs to a different project than the epic.
 ```
 
 `requirementType`: `Functional` | `Design` | `Performance` `status`: `Untested`
-| `Passing` | `Failing`
+| `Passing` | `Failing` | `Deprecated`
 
 **Update** (`PATCH /api/v1/requirement/{requirementID}`) — all optional (same
 fields minus `projectID`). `releaseID` and `secondaryFeatureID` may be set to
@@ -434,7 +436,7 @@ DELETE /api/v1/entity/{entityID}/fields?fieldIDs=<uuid>&fieldIDs=<uuid>
 `projectID`). `releaseID` and `secondaryFeatureID` may be set to `null` to unset
 them.
 
-`status`: `Untested` | `Passing` | `Failing`
+`status`: `Untested` | `Passing` | `Failing` | `Deprecated`
 
 ### Release
 
@@ -506,17 +508,17 @@ displayed prominently in output and used when describing items to users.
 
 ### Key response fields
 
-| Resource            | Notable detail fields                                                                                                                                                                                                                                                     |
-| ------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `ProjectDetail`     | `description`, `brief`, `webUrl`                                                                                                                                                                                                                                          |
-| `EpicDetail`        | `description`, `slug`, `notes`, `created`, `updated`, `webUrl`                                                                                                                                                                                                            |
-| `FeatureDetail`     | `description`, `notes`, `source`, `ref` (int), `created`, `updated`, `webUrl`                                                                                                                                                                                             |
-| `RequirementDetail` | `requirementType` (`Functional`/`Design`/`Performance`), `status` (`Untested`/`Passing`/`Failing`), `source`, `notes`, `acceptanceCriteria` (array), `automatedTestCoverageType` (`Untested`/`Tested`/`Needs a test`), `secondaryFeatureID`, `businessCritical`, `webUrl` |
-| `EntityDetail`      | `entityName`, `status`, `source`, `notes`, `acceptanceCriteria` (array), `automatedTestCoverageType`, `secondaryFeatureID`, `fields` (EntityFieldDetail array), `created`, `webUrl`                                                                                       |
-| `EntityFieldDetail` | `name`, `type`, `required`, `notes`, `options` (array of strings), `sampleValue`, `defaultValue`, `helpText`, `uiFieldGrouping`, `validations`, `created`, `updated`                                                                                                      |
-| `ReleaseDetail`     | `name`, `description`, `shipped`, `created`, `updated`, `webUrl`                                                                                                                                                                                                          |
-| `UserRoleDetail`    | `name`, `description`, `created`, `updated`, `webUrl`                                                                                                                                                                                                                     |
-| `Organization`      | `id`, `name`, `slug`, `description`, `created`, `updated`                                                                                                                                                                                                                 |
+| Resource            | Notable detail fields                                                                                                                                                                                                                                                                  |
+| ------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `ProjectDetail`     | `description`, `brief`, `webUrl`                                                                                                                                                                                                                                                       |
+| `EpicDetail`        | `description`, `slug`, `notes`, `created`, `updated`, `webUrl`                                                                                                                                                                                                                         |
+| `FeatureDetail`     | `description`, `notes`, `source`, `ref` (int), `created`, `updated`, `webUrl`                                                                                                                                                                                                          |
+| `RequirementDetail` | `requirementType` (`Functional`/`Design`/`Performance`), `status` (`Untested`/`Passing`/`Failing`/`Deprecated`), `source`, `notes`, `acceptanceCriteria` (array), `automatedTestCoverageType` (`Untested`/`Tested`/`Needs a test`), `secondaryFeatureId`, `businessCritical`, `webUrl` |
+| `EntityDetail`      | `entityName`, `status`, `source`, `notes`, `acceptanceCriteria` (array), `automatedTestCoverageType`, `secondaryFeatureID`, `fields` (EntityFieldDetail array), `created`, `webUrl`                                                                                                    |
+| `EntityFieldDetail` | `name`, `type`, `required`, `notes`, `options` (array of strings), `sampleValue`, `defaultValue`, `helpText`, `uiFieldGrouping`, `validations`, `created`, `updated`                                                                                                                   |
+| `ReleaseDetail`     | `name`, `description`, `shipped`, `created`, `updated`, `webUrl`                                                                                                                                                                                                                       |
+| `UserRoleDetail`    | `name`, `description`, `created`, `updated`, `webUrl`                                                                                                                                                                                                                                  |
+| `Organization`      | `id`, `name`, `slug`, `description`, `created`, `updated`                                                                                                                                                                                                                              |
 
 Projects are identified by **UUID** in API calls. Use `resolveProjectSlug()` in
 `lib/api-client.js` to convert a human-readable slug to a UUID.
@@ -583,7 +585,7 @@ All scripts accept `--instance <name>` anywhere in their argument list.
 
 ./scripts/create-requirement.js <project-slug> <feature-uuid> <description> [options] [--instance <name>]
   Options: --type Functional|Design|Performance
-           --status Untested|Passing|Failing
+           --status Untested|Passing|Failing|Deprecated
            --release <uuid>, --secondary-feature <uuid>
            --source, --notes, --business-critical true|false
 
@@ -606,12 +608,12 @@ All scripts accept `--instance <name>` anywhere in their argument list.
            --include-deprecated
 
 ./scripts/create-entity.js <project-slug> <feature-uuid> <entity-name> [options] [--instance <name>]
-  Options: --release <uuid>, --secondary-feature <uuid>, --status Untested|Passing|Failing,
+  Options: --release <uuid>, --secondary-feature <uuid>, --status Untested|Passing|Failing|Deprecated,
            --source, --notes, --business-critical true|false
 
 ./scripts/update-entity.js <project-slug> <entity-ref-or-uuid> [options] [--instance <name>]
   Options: --entity-name, --feature <uuid>, --release <uuid>,
-           --secondary-feature <uuid>, --status Untested|Passing|Failing, --source, --notes,
+           --secondary-feature <uuid>, --status Untested|Passing|Failing|Deprecated, --source, --notes,
            --acceptance-criteria, --business-critical true|false
 
 ./scripts/delete-entity.js <project-slug> <entity-ref-or-uuid> [--instance <name>]  # ⚠️  permanent deletion (idempotent)
@@ -621,6 +623,7 @@ All scripts accept `--instance <name>` anywhere in their argument list.
 
 ```bash
 ./scripts/list-releases.js <project-slug> [--instance <name>]
+./scripts/get-release-context.js <release-uuid> [output.md] [--instance <name>]
 ./scripts/create-release.js <project-slug> <name> [description] [--instance <name>]
 ./scripts/update-release.js <release-uuid> [--name "..."] [--description "..."] [--slug "..."] [--shipped true|false] [--instance <name>]
 ./scripts/delete-release.js <release-uuid> [--instance <name>]  # ⚠️  permanent deletion

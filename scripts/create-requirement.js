@@ -5,7 +5,7 @@
  *
  * Options:
  *   --type Functional|Design|Performance
- *   --status Untested|Passing|Failing
+ *   --status Untested|Passing|Failing|Deprecated
  *   --release <release-uuid>
  *   --secondary-feature <feature-uuid>
  *   --source <text>
