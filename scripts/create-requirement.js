@@ -39,7 +39,17 @@ cli.run(async () => {
     notes: "notes",
     "business-critical": { key: "businessCritical", transform: cli.bool },
   });
-  Object.assign(body, { projectId: project.id, featureId, description });
+
+  // Handle description length limit (300 chars)
+  const { description: truncatedDesc, notes: combinedNotes } =
+    cli.splitDescription(description, body.notes);
+
+  Object.assign(body, {
+    projectId: project.id,
+    featureId,
+    description: truncatedDesc,
+    notes: combinedNotes,
+  });
 
   const res = await client.post("/api/v1/requirement", body);
   const req = res.data.data;
@@ -48,6 +58,10 @@ cli.run(async () => {
   console.log(`  Ref:  ${req.fullyQualifiedRef}`);
   console.log(`  Type: ${req.requirementType}`);
   console.log(`  Description: ${req.description}`);
+  if (req.notes)
+    console.log(
+      `  Notes: ${req.notes.slice(0, 100)}${req.notes.length > 100 ? "..." : ""}`,
+    );
   console.log(`  ID:   ${req.id}`);
   if (req.webUrl) console.log(`  URL:  ${req.webUrl}`);
 });

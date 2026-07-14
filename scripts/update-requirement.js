@@ -52,6 +52,16 @@ cli.run(async () => {
   const { resolveRequirement } = require("../lib/api-client");
   const requirement = await resolveRequirement(client, project.id, refOrId);
 
+  // Handle description length limit (300 chars) if description is being updated
+  if (body.description) {
+    // Get existing notes from the requirement or from the update body
+    const existingNotes = body.notes || requirement.notes || "";
+    const { description: truncatedDesc, notes: combinedNotes } =
+      cli.splitDescription(body.description, existingNotes);
+    body.description = truncatedDesc;
+    body.notes = combinedNotes;
+  }
+
   const res = await client.patch(`/api/v1/requirement/${requirement.id}`, body);
   const req = res.data.data;
 
@@ -59,5 +69,9 @@ cli.run(async () => {
   console.log(`  Ref:    ${req.fullyQualifiedRef}`);
   console.log(`  Status: ${req.status}`);
   console.log(`  Description: ${req.description}`);
+  if (req.notes)
+    console.log(
+      `  Notes: ${req.notes.slice(0, 100)}${req.notes.length > 100 ? "..." : ""}`,
+    );
   console.log(`  ID:     ${req.id}`);
 });

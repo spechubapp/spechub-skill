@@ -356,6 +356,12 @@ belongs to a different project than the epic.
 `requirementType`: `Functional` | `Design` | `Performance` `status`: `Untested`
 | `Passing` | `Failing` | `Deprecated`
 
+**⚠️ Description Length Limit**: The `description` field has a maximum length of
+300 characters. When creating or updating a requirement with a longer
+description, the skill automatically truncates it at a sensible break point
+(preferring sentence or word boundaries) and moves the excess text to the
+`notes` field. If notes already exist, the overflow is prepended to them.
+
 **Update** (`PATCH /api/v1/requirement/{requirementID}`) — all optional (same
 fields minus `projectID`). `releaseID` and `secondaryFeatureID` may be set to
 `null` to unset them.
@@ -819,3 +825,7 @@ after the `Retry-After` header duration.
 - **Deprecated items**: Entities and requirements can be marked as deprecated.
   By default, list endpoints exclude deprecated items; pass
   `includeDeprecated=true` to include them.
+- **Requirement description length**: The `description` field of a requirement
+  has a 300-character maximum. The skill automatically handles this by
+  truncating at sentence or word boundaries and moving excess text to the
+  `notes` field. This applies to both create and update operations.
