@@ -1,6 +1,6 @@
 ---
 name: spechub
-description:
+description: >
   Read and analyze data from SpecHub (go.spechub.app), and create or update
   projects, epics, features, requirements, releases, user roles, and entities.
   Supports multiple named instances (production, staging, local, etc.). Use when
@@ -11,7 +11,7 @@ description:
   its own separate confirmation. Never execute write operations without showing
   the user exactly what will be changed. This is non-negotiable.
 license: MIT
-compatibility:
+compatibility: >
   Requires Node.js 18+, axios, dotenv. Access to SpecHub API with personal
   access token.
 ---
@@ -774,6 +774,13 @@ before execution.
   Options: --entity-name, --feature <uuid>, --release <uuid>,
            --secondary-feature <uuid>, --status Untested|Passing|Failing|Deprecated, --source, --notes,
            --acceptance-criteria, --business-critical true|false
+
+./scripts/set-entity-fields.js <project-slug> <entity-ref-or-uuid> --fields <file.json> [--instance <name>]  # ⚠️  confirmation required
+  # Upsert fields on an entity. A field given with an id is updated in place
+  # (including renames); one without an id is created. Reference/One and
+  # Reference/Many fields take referencedEntityId, so reference fields can be
+  # created through the API.
+./scripts/set-entity-fields.js <project-slug> <entity-ref-or-uuid> --delete <field-uuid>[,<field-uuid>...] [--instance <name>]  # ⚠️  confirmation required - permanent deletion
 
 ./scripts/delete-entity.js <project-slug> <entity-ref-or-uuid> [--instance <name>]  # ⚠️  confirmation required - permanent deletion (idempotent)
 ```
