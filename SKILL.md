@@ -277,7 +277,7 @@ endpoints plus N detail calls.
 
 | Endpoint                           | Required param        | One request returns                                                                      | Replaces                                                                                  |
 | ---------------------------------- | --------------------- | ---------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------- |
-| `GET /api/v1/project/context`      | `projectId`           | Project name/description, all user roles, all entities **with their fields**, all features | `listProjects` + `listUserRoles` + `listEntities` + `getEntity` per entity + `listFeatures` |
+| `GET /api/v1/project/context`      | `projectId`           | Project name/description, all user roles, all entities **with their fields**, all features, and releases | `listProjects` + `listUserRoles` + `listEntities` + `getEntity` per entity + `listFeatures` + `listReleases` |
 | `GET /api/v1/epic/context`         | `epicId`              | Epic name, its features, and each feature's requirements                                 | `getEpic` + `listEpicFeatures` + `listRequirements` per feature                            |
 | `GET /api/v1/feature/context`      | `featureId`           | Feature name and all of its requirement descriptions                                     | `getFeature` + `listRequirements?featureId=`                                              |
 | `GET /api/v1/release/context`      | `releaseId`           | Release name/description, its features, and each feature's requirements                  | `getRelease` + `listFeatures` + `listRequirements?releaseId=`                              |
@@ -293,6 +293,22 @@ Rules of thumb:
   `responseType: 'text'` (`cli.getContext()` / `cli.printContext()` do this).
 - Never loop detail calls over a list when a context endpoint or a filtered
   list would do.
+
+#### Mandatory project context for suggestions and analysis
+
+For every suggestion, recommendation, assessment, gap analysis, prioritization,
+or other analysis scoped to a project, first resolve the project and load
+`GET /api/v1/project/context?projectId=<projectId>`. Reuse context already
+loaded during the current task when it is still applicable; otherwise fetch it
+before forming the response.
+
+Base the result on the complete project context, not only on the portion the
+user mentioned. In particular, account for the project's description, user
+roles, entities and fields, features, and releases. Identify material context
+that influenced the result—especially existing capabilities, data-model
+constraints, or release scope—and avoid recommendations that conflict with it.
+Fetch additional structured data only when the task needs fields that context
+does not provide, such as statuses, requirement refs, or timestamps.
 
 ### Read efficiently: filtered lists over client-side filtering
 
@@ -451,12 +467,14 @@ What each document contains (see the decision table above for when to prefer
 them):
 
 - **Project**: name, description, user roles, entities with every field name and
-  type, feature list.
+  type, feature list, and releases (including UUIDs).
 - **Epic**: epic name, epic features, requirements nested under each feature.
 - **Feature**: feature name and its requirement descriptions.
 - **Release**: release name, description, features with nested requirements.
 
-They contain names and prose only — no UUIDs, refs, statuses, or timestamps.
+They contain names and prose only — no UUIDs, refs, statuses, or timestamps —
+except that project context includes each release's UUID so it can be selected
+when creating requirements or entities.
 
 ## Request Bodies
 
@@ -562,6 +580,34 @@ belongs to a different project than the epic.
 
 `requirementType`: `Functional` | `Design` | `Performance` `status`: `Untested`
 | `Passing` | `Failing` | `Deprecated`
+
+#### Release assignment check — mandatory when creating a requirement
+
+Before preparing a requirement create request, resolve the project and fetch
+its context with `GET /api/v1/project/context?projectId=<projectId>`. Use the
+context's release information (including each release UUID) for this check;
+do not make a separate release-list request. This check is required even when
+the user did not mention releases.
+
+- If the project has no releases, a requirement may be created without a
+  `releaseId`.
+- If the project has one or more releases, treat `releaseId` as expected:
+  present the available releases and obtain the user's chosen release before
+  preparing the create operation. If the user names a release, resolve it from
+  the project context and include its UUID as `releaseId`.
+- If the project has releases but the user has not selected one, do **not**
+  silently create an unassigned requirement. Ask explicitly: “This project has
+  releases. Do you intend to create this requirement with no release assigned?”
+  Make clear that this is a release-intent check, **not** approval to perform
+  the POST request.
+- Only after the user explicitly confirms that intent may the `releaseId` be
+  omitted. Then present the normal, separate write-operation confirmation with
+  the complete body (which visibly has no `releaseId`) and wait for approval
+  before issuing `POST /api/v1/requirement`.
+
+Do not infer an unassigned requirement from an omitted release when the project
+has releases. The normal write-action confirmation never substitutes for the
+release-intent confirmation.
 
 **⚠️ Description Length Limit**: The `description` field has a maximum length of
 300 characters. When creating or updating a requirement with a longer
