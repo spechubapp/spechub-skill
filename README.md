@@ -55,7 +55,7 @@ refresh:
 3. **Auto-refresh** - Tokens are cached and refreshed automatically when within
    60 seconds of expiry
 
-PATs are stored securely in `instances.json` (gitignored).
+PATs are stored as plaintext in `instances.json` (gitignored).
 
 ## Instance Management
 
@@ -166,14 +166,9 @@ All list endpoints support filtering:
 
 ## Write Action Confirmation
 
-**Important**: Before any write operation (POST, PATCH, DELETE), Pi will present
-a confirmation prompt showing:
-
-1. HTTP method and endpoint
-2. Target instance (name + URL)
-3. Request body (for POST/PATCH) or resource details (for DELETE)
-
-You must explicitly confirm before the operation executes.
+The agent follows the [write confirmation policy](SKILL.md#write-confirmation)
+before changing SpecHub data. Scripts execute directly and do not prompt for
+approval themselves.
 
 ## Requirements
 
@@ -183,9 +178,9 @@ You must explicitly confirm before the operation executes.
 
 ## Documentation
 
-- [`SKILL.md`](./SKILL.md) - Complete skill documentation
-- [`QUICKREF.md`](./QUICKREF.md) - Quick reference guide
-- [`AI-CONTEXT-GUIDE.md`](./AI-CONTEXT-GUIDE.md) - AI context endpoints guide
+- [`SKILL.md`](./SKILL.md) - Operating rules and context workflow
+- [Commands and helpers](./references/commands.md) - Script arguments and setup
+- [API reference](./references/api.md) - Endpoints, bodies, filters, and errors
 
 ## License
 
