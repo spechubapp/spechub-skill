@@ -1,108 +1,130 @@
-# AI Context Endpoints - Understanding and Usage
+# Context Endpoints - Understanding and Usage
 
 ## Overview
 
-SpecHub provides AI context endpoints that return comprehensive, structured
-**plain text** data optimized for AI analysis. These are the **primary way** to
-access project and feature data.
+SpecHub exposes four **context endpoints** that return a `text/markdown` digest
+assembled server-side. They are the most token- and request-efficient way to
+understand a project, epic, feature, or release, because a single call replaces
+several paginated list calls plus one detail call per item.
 
-## Why Use AI Context Endpoints?
+Prefer them for any overview, summary, review, documentation, or analysis task.
 
-1. **Complete Data**: Returns entire project/feature information in one call
-2. **Structured Text**: Organized plain text optimized for AI understanding
-3. **No Multiple Requests**: Everything in a single response
-4. **Comprehensive**: All metadata, descriptions, and requirements together
+## Endpoints
 
-## Endpoint Structure
+| Endpoint                      | Required query param | Contents                                                                                   | Requests it replaces                                                                        |
+| ----------------------------- | -------------------- | ------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------- |
+| `GET /api/v1/project/context` | `projectId`          | Project name/description, all user roles, all entities **with every field and type**, features | `listProjects` + `listUserRoles` + `listEntities` + `getEntity` per entity + `listFeatures` |
+| `GET /api/v1/epic/context`    | `epicId`             | Epic name, its features, requirements nested under each feature                             | `getEpic` + `listEpicFeatures` + `listRequirements` per feature                              |
+| `GET /api/v1/feature/context` | `featureId`          | Feature name and all its requirement descriptions                                          | `getFeature` + `listRequirements?featureId=`                                                |
+| `GET /api/v1/release/context` | `releaseId`          | Release name/description, features with nested requirements                                | `getRelease` + `listFeatures` + `listRequirements?releaseId=`                                |
 
-### Project Context
+All four require the standard bearer token and should be requested with
+`Accept: text/markdown`.
 
-```
-GET https://go.spechub.app/<org-slug>/<project-slug>/_/debug/ai-context
-Cookie: session=YOUR_SESSION_TOKEN
-User-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36
-```
-
-**Example**: `https://go.spechub.app/my-org/my-project/_/debug/ai-context`
-
-Returns plain text including:
-
-- Project name and description
-- User roles and permissions
-- Data model with entity definitions and fields
-- Complete context for AI analysis
-
-### Feature Context
-
-```
-GET https://go.spechub.app/<org-slug>/<project-slug>/<feature-ref>/_/debug/ai-context
-Cookie: session=YOUR_SESSION_TOKEN
-User-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36
-```
-
-**Example**: `https://go.spechub.app/my-org/my-project/124/_/debug/ai-context`
-
-Returns plain text including:
-
-- Feature name and description
-- All requirements for the feature
-- Complete context for feature analysis
-
-## Usage in Scripts
-
-### Get Project Context
+## Calling them
 
 ```bash
-./scripts/get-project-context.js my-org my-project
-./scripts/get-project-context.js my-org my-project output.txt   # Save to file
+./scripts/get-project-context.js <project-slug> [out.md] [--instance <name>]
+./scripts/get-epic-context.js <epic-uuid> [out.md]
+./scripts/get-feature-context.js <feature-uuid> [out.md]
+./scripts/get-release-context.js <release-uuid> [out.md]
 ```
 
-### Get Feature Context
+From code:
 
-```bash
-./scripts/get-feature-context.js my-org my-project 124
-./scripts/get-feature-context.js my-org my-project 124 output.txt   # Save to file
+```javascript
+const cli = require("../lib/cli");
+
+const client = await cli.createClient();
+const project = await cli.resolveProjectSlug(client, "spechub");
+
+// Returns the Markdown string
+const md = await cli.getContext(client, "/api/v1/project/context", {
+  projectId: project.id,
+});
+
+// Or print/save it
+await cli.printContext(
+  client,
+  "/api/v1/project/context",
+  { projectId: project.id },
+  { title: "Project Context", outputFile: "out.md" },
+);
 ```
 
-## When to Use Each Endpoint
+Raw axios equivalent (note the headers and `responseType`):
 
-### Use Project Context When:
-
-- Analyzing the entire project
-- Getting an overview of all features
-- Understanding the data model
-- Generating project reports
-- Answering project-level questions
-
-### Use Feature Context When:
-
-- Diving into a specific feature
-- Analyzing feature requirements
-- Answering feature-specific questions
-
-## Authentication
-
-Both endpoints require cookie-based authentication:
-
-```
-Cookie: session=YOUR_SESSION_TOKEN
+```javascript
+const res = await client.get("/api/v1/project/context", {
+  params: { projectId },
+  headers: { Accept: "text/markdown" },
+  responseType: "text",
+});
 ```
 
-Get a session via:
+## Example shapes
 
-```bash
-./scripts/login.js
+Project context:
+
+```
+Project Name:
+Checkout redesign
+
+Project Description:
+Overhaul the checkout flow to reduce cart abandonment.
+
+User Roles:
+- Admin: Administrator with full project access
+- Viewer: Read-only access to project
+
+Entities and their Fields:
+
+User
+- email: string
+- id: uuid
+
+Features:
+- User authentication
+- Payment processing
 ```
 
-## Error Handling
+Release context:
 
-- **303 redirect to /login**: Session expired — run `./scripts/login.js`
-- **404**: Invalid org/project/feature — check slugs and refs
+```
+Release Name:
+1.2
 
-## Real Examples
+Release Description:
+Improved checkout workflow
 
-Organization: `my-org`, Project: `my-project`, Feature: `124`
+Release Features and Requirements:
+- Checkout flow on single page
+  - User can see the current cart contents, shipping, and payment forms all on one page
+  - Errors upon submission leave all possible fields populated
+```
 
-- **Project Context**: `https://go.spechub.app/my-org/my-project/_/debug/ai-context`
-- **Feature Context**:
-  `https://go.spechub.app/my-org/my-project/124/_/debug/ai-context`
+## When NOT to use context endpoints
+
+Context documents contain names and prose only. Use list/detail endpoints when
+you need:
+
+- UUIDs (required for any create/update/delete)
+- `fullyQualifiedRef` values, `ref` numbers, or `webUrl`
+- `status`, `requirementType`, `automatedTestCoverageType`, `businessCritical`
+- `acceptanceCriteria`, `source`, `notes`
+- `created`/`updated` timestamps
+- deprecated items (`includeDeprecated=true`)
+
+When you do need structured data, still minimise requests: filter server-side
+with `refs`, `featureId`, `epicId`, `releaseId`, or `secondaryFeatureId`, let
+`fetchAll()` page at `limit=500`, and run independent list calls concurrently.
+
+## Errors
+
+- `401` — expired or invalid token; run `./scripts/check-auth.js`
+- `404` — the project/epic/feature/release UUID does not exist or is not visible
+  to the caller
+- `429` — rate limited; back off using `Retry-After`
+
+Error bodies are RFC 9457 `application/problem+json`; surface `title` and
+`detail` rather than guessing.

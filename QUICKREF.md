@@ -1,118 +1,100 @@
-# SpecHub Quick Reference (Read-Only)
+# SpecHub Quick Reference
 
-## ⚠️ READ-ONLY ACCESS
+Authoritative details live in `SKILL.md`. This is the cheat sheet.
 
-This skill provides **read-only** access to SpecHub. It can view and analyze
-data but **cannot** create, update, or delete anything.
+> ⚠️ Every write operation (POST/PATCH/PUT/DELETE) requires explicit user
+> confirmation before execution. See the Write Action Policy in `SKILL.md`.
 
 ## Installation
 
 ```bash
 cd ~/.pi/agent/skills/spechub
 npm install
+./scripts/add-instance.js production --url https://api.spechub.app --pat <your-pat>
+./scripts/check-auth.js
 ```
 
-## Commands
+Auth is bearer-token based: a long-lived personal access token is exchanged for a
+short-lived access token via `POST /api/v1/auth/token/refresh` (handled
+automatically by `lib/api-client.js`).
 
-### Authentication
+## ⚡ Read the fewest requests possible
+
+Use a context endpoint whenever the question is about an overview. Each returns
+Markdown assembled server-side in one request.
 
 ```bash
-./scripts/login.js          # Login with OTP (two-step: email → passcode)
-./scripts/check-auth.js     # Check session status
-./scripts/diagnose.js       # Run full diagnostics
-./scripts/setup.js          # Initial configuration
+./scripts/get-project-context.js <project-slug> [out.md]   # roles + entities/fields + features
+./scripts/get-epic-context.js <epic-uuid> [out.md]         # epic features + their requirements
+./scripts/get-feature-context.js <feature-uuid> [out.md]   # feature + its requirements
+./scripts/get-release-context.js <release-uuid> [out.md]    # release features + requirements
+./scripts/analyze-project.js <project-slug>                # counts + project context
 ```
 
-### Browse & View
+Use list/detail endpoints only when you need UUIDs, refs, statuses, timestamps,
+`acceptanceCriteria`, `businessCritical`, or data you intend to mutate. Then let
+the server filter:
 
 ```bash
-./scripts/list-projects.js                              # List all projects
-./scripts/get-project-context.js <org> <project>        # Full project context
-./scripts/get-project-context.js <org> <project> out.txt  # Save to file
-./scripts/get-feature-context.js <org> <project> <ref>  # Full feature context
-./scripts/get-feature-context.js <org> <project> <ref> out.txt  # Save to file
-./scripts/analyze-project.js <org> <project>            # Analyze project
+./scripts/list-requirements.js <project-slug> --refs 1.23,2.45
+./scripts/list-requirements.js <project-slug> --feature <uuid>
+./scripts/get-entities.js <project-slug> --release <uuid>
 ```
 
-### Examples
+## Browse & view
 
 ```bash
+./scripts/list-instances.js
+./scripts/list-organizations.js
 ./scripts/list-projects.js
-./scripts/get-project-context.js my-org my-project
-./scripts/get-feature-context.js my-org my-project 124
-./scripts/analyze-project.js my-org my-project
+./scripts/list-features.js <project-slug>
+./scripts/list-epics.js <project-slug>
+./scripts/get-epic-features.js <epic-uuid>
+./scripts/list-releases.js <project-slug>
+./scripts/list-userroles.js <project-slug>
+./scripts/list-requirements.js <project-slug> [filters]
+./scripts/get-requirement.js <project-slug> <ref-or-uuid>
+./scripts/get-entities.js <project-slug> [filters]
+./scripts/get-entity.js <project-slug> <ref-or-uuid>
 ```
 
-## Authentication
+All scripts accept `--instance <name>` anywhere in the argument list.
 
-SpecHub uses cookie-based sessions with email OTP:
+## Conventions that trip people up
 
-1. Run `./scripts/login.js`
-2. OTP is sent to your email
-3. Enter the 6-digit passcode
-4. Session cookie is saved to `.env`
+- Identifiers are camelCase with a lowercase `Id`/`Ids` suffix: `projectId`,
+  `organizationId`, `featureIds`, `fieldIds`, `requirementIds`. `projectID`
+  returns `400`.
+- `requirementIds` is comma-separated in one param; `fieldIds` is repeated.
+- `limit` defaults to 100, min 20, max 500. Follow `pagination.nextCursor` while
+  `pagination.hasNext`; never construct a cursor.
+- Requirement `description` is capped at 300 characters; overflow moves to
+  `notes` automatically.
+- Refer to requirements/entities by `fullyQualifiedRef` (e.g. "1.23") in output,
+  not UUID.
+- Errors are RFC 9457 problem+json: surface `title` and `detail`.
+- On `429`, honour `Retry-After`.
 
-**Login flow details:**
-
-- Step 1: POST `/login` with your email → session cookie set
-- Step 2: POST `/login/confirmation` with `login_code_plaintext=XXXXXX`
-  (carrying session cookie from step 1) → new session cookie set
-
-## URL Structure
-
-```
-https://go.spechub.app/<org-slug>/<project-slug>
-https://go.spechub.app/<org-slug>/<project-slug>/<feature-ref>
-```
-
-### AI Context Endpoints (return plain text)
+## Data hierarchy
 
 ```
-https://go.spechub.app/<org-slug>/<project-slug>/_/debug/ai-context
-https://go.spechub.app/<org-slug>/<project-slug>/<feature-ref>/_/debug/ai-context
-```
-
-## Required Headers
-
-All requests must include:
-
-```
-Cookie: session=YOUR_SESSION_TOKEN
-User-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36
-```
-
-## Configuration
-
-`.env` file in skill directory:
-
-```bash
-SPECHUB_URL=https://go.spechub.app
-SPECHUB_SESSION_TOKEN=your_session_token_here
+Organization
+└── Project
+    ├── Feature (integer ref)
+    │   ├── Requirement (fullyQualifiedRef "1.2")
+    │   └── Entity (fullyQualifiedRef "1.1") → EntityField
+    ├── Epic (M:N with Features)
+    ├── Release
+    └── UserRole
 ```
 
 ## Troubleshooting
 
-| Problem                        | Solution                              |
-| ------------------------------ | ------------------------------------- |
-| Session expired (303 → /login) | Run `./scripts/login.js`              |
-| OTP invalid/expired            | Request a new OTP, enter it quickly   |
-| Module not found               | Run `npm install` in skill directory  |
-| Can't connect                  | Check network, verify URL             |
-| No projects listed             | Check auth: `./scripts/check-auth.js` |
-| Asked to modify data           | This skill is read-only               |
-
-## Data Hierarchy
-
-```
-Organization (org-slug)
-└── Project (project-slug)
-    └── Feature (feature-ref, numeric)
-```
-
-## Key Facts
-
-- **No public API** — data accessed via HTML parsing and AI context text
-  endpoints
-- **Cookie-based auth** — not Bearer tokens
-- **AI context returns plain text** — not JSON
-- **Read-only** — never creates, updates, or deletes data
+| Problem                       | Solution                                        |
+| ----------------------------- | ----------------------------------------------- |
+| `401 Unauthorized`            | Check the PAT: `./scripts/check-auth.js`        |
+| `400` on a query parameter    | Check casing (`projectId`, not `projectID`)     |
+| Module not found              | `npm install` in the skill directory            |
+| Can't connect                 | `./scripts/diagnose.js [--instance <name>]`     |
+| Wrong environment             | `./scripts/use-instance.js <name>`              |
+| Asked to write data           | Confirm with the user first, every time         |

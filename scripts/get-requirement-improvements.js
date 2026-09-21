@@ -5,9 +5,9 @@
  */
 const cli = require("../lib/cli");
 
-const [slug, ...requirementIDs] = cli.positionals(process.argv.slice(2));
+const [slug, ...requirementIds] = cli.positionals(process.argv.slice(2));
 
-if (!slug || requirementIDs.length === 0) {
+if (!slug || requirementIds.length === 0) {
   cli.usage(
     "Usage: ./get-requirement-improvements.js <project-slug> <requirement-uuid> [<requirement-uuid> ...]",
     "Example: ./get-requirement-improvements.js spechub abc-123 def-456",
@@ -18,10 +18,10 @@ cli.run(async () => {
   const client = await cli.createClient();
   const project = await cli.resolveProjectSlug(client, slug);
 
-  // requirementIDs uses style=form, explode=false: pass as a single
-  // comma-separated param (?requirementIDs=uuid1,uuid2), not repeated params.
+  // requirementIds uses style=form, explode=false: pass as a single
+  // comma-separated param (?requirementIds=uuid1,uuid2), not repeated params.
   const res = await client.get("/api/v1/requirement/improve", {
-    params: { projectId: project.id, requirementIDs: requirementIDs.join(",") },
+    params: { projectId: project.id, requirementIds: requirementIds.join(",") },
   });
 
   const improvements = res.data.requirementImprovements;
