@@ -54,6 +54,16 @@ Use `cli.getContext()` or `cli.printContext()`; raw requests need
 release UUIDs, context contains prose rather than structured identifiers,
 statuses, refs, or timestamps.
 
+## Requirement authoring
+
+Before drafting, suggesting, reviewing, or improving any requirement, read
+[Requirement authoring](references/requirement-authoring.md). Apply its five
+formulation types, canonical structures, quality rules, and preflight checklist.
+Every proposed requirement must match exactly one type and be atomic,
+objective, unambiguous, and verifiable. Label suggestions with their formulation
+type, or explicitly classify every requirement before presenting the set.
+These formulation types are distinct from the API's `requirementType` category.
+
 ## Requirement creation
 
 Use the project's context to check releases before preparing a create request,
