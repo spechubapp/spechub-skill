@@ -35,7 +35,7 @@ wins, with `urlMismatch: true` when the URLs differ).
 ./scripts/list-projects.js
 ./scripts/analyze-project.js <project>          # counts + project context
 ./scripts/get-project-context.js <project> [output.md]
-./scripts/delete-project.js <project-uuid>
+./scripts/delete-project.js <project>
 
 ./scripts/list-{epics,features,releases,userroles}.js <project>
 ./scripts/create-{epic,feature,release,userrole}.js <project> <name> [description]
@@ -72,7 +72,7 @@ wins, with `urlMismatch: true` when the URLs differ).
   #   --secondary-feature <uuid>, --source, --notes, --business-critical true|false,
   #   --acceptance-criteria (update only)
 
-./scripts/get-requirement-improvements.js <project> <requirement-uuid>... --release-number <name|none>
+./scripts/get-requirement-improvements.js <project> <ref-or-uuid>... --release-number <name|none>
 ./scripts/set-entity-fields.js <project> <ref-or-uuid> --fields <file.json>       # body: api.md
 ./scripts/set-entity-fields.js <project> <ref-or-uuid> --delete <field-uuid>[,...]
 ./scripts/delete-requirement.js <project> <ref-or-uuid>   # refuses shipped releases
