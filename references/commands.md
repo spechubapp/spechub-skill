@@ -59,6 +59,9 @@ wins, with `urlMismatch: true` when the URLs differ).
   # filters: --feature, --epic, --release, --secondary-feature <uuid>,
   #          --refs 1.2,3.4, --include-deprecated
 
+./scripts/export-requirements.js <project> [filters] [--output <file.md>]
+  # full detail (notes, acceptance criteria, release) as Markdown by feature
+
 ./scripts/get-requirement.js <project> <ref-or-uuid>
 ./scripts/get-entity.js <project> <ref-or-uuid>
 

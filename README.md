@@ -51,6 +51,8 @@ it helps agents load this skill.
 - [API reference](references/api.md): endpoints, bodies, filters, and errors.
 - [Requirement authoring](references/requirement-authoring.md): formulation
   types and quality rules.
+- [Reconciliation](references/reconciliation.md): compare a linked
+  repository's implementation with its requirements and report gaps.
 
 ## License
 

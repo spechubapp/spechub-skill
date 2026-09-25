@@ -3,8 +3,9 @@ name: spechub
 description: >
   Browse, analyze, and manage SpecHub projects, epics, features, requirements,
   entities, releases, and user roles across named instances. Use for tasks
-  involving SpecHub (go.spechub.app) data, or code changes in a repository
-  linked to a SpecHub project by a `.spechub.json` file.
+  involving SpecHub (go.spechub.app) data, code changes in a repository
+  linked to a SpecHub project by a `.spechub.json` file, or reconciling such a
+  repository's implementation against its requirements.
 license: MIT
 ---
 
@@ -96,6 +97,10 @@ comment, each prefixed with `REQ` (e.g. `// REQ 1.23, REQ 2.4`), without
 restating the code. Include known refs in commit messages the same way (e.g.
 `Refs: REQ 1.23, REQ 2.4`); never invent refs or block a commit when none
 applies.
+
+To compare a linked repository's implementation with its requirements (a
+reconciliation, audit, or spec-versus-code review), follow
+[reconciliation](references/reconciliation.md).
 
 ## Reads and identifiers
 
