@@ -26,13 +26,9 @@ if (!projectSlug || !refOrId) {
 cli.run(async () => {
   const client = await cli.createClient();
   const project = await cli.resolveProjectSlug(client, projectSlug);
-  const { resolveEntity } = require("../lib/api-client");
-
-  // Resolve ref to the entity's UUID. The list endpoint used by resolveEntity
-  // omits fields and notes, so re-fetch the entity by ID for the full record.
-  const listed = await resolveEntity(client, project.id, refOrId);
-  const res = await client.get(`/api/v1/entity/${listed.id}`);
-  const entity = { ...listed, ...res.data.data };
+  const entity = await cli.resolveEntity(client, project.id, refOrId, {
+    detail: true,
+  });
 
   console.log(`\n=== Entity ${entity.fullyQualifiedRef} ===\n`);
   console.log(`ID:          ${entity.id}`);

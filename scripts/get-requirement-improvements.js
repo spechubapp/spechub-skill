@@ -7,14 +7,26 @@ const cli = require("../lib/cli");
 
 const args = process.argv.slice(2);
 const releaseIndex = args.indexOf("--release-number");
-if (releaseIndex === -1 || !args[releaseIndex + 1] || args[releaseIndex + 1].startsWith("--")) {
-  cli.usage("Ask the user for a release number, then pass --release-number <name-or-slug> (or none if explicitly unassigned).");
+if (
+  releaseIndex === -1 ||
+  !args[releaseIndex + 1] ||
+  args[releaseIndex + 1].startsWith("--")
+) {
+  cli.usage(
+    "Ask the user for a release number, then pass --release-number <name-or-slug> (or none if explicitly unassigned).",
+  );
 }
 const releaseNumber = args[releaseIndex + 1];
 args.splice(releaseIndex, 2);
 const [slug, ...requirementIds] = args;
-if (!slug || requirementIds.length === 0 || requirementIds.some((id) => !cli.isUuid(id))) {
-  cli.usage("Usage: ./get-requirement-improvements.js <project-slug> <requirement-uuid> [<requirement-uuid> ...] --release-number <name-or-slug>");
+if (
+  !slug ||
+  requirementIds.length === 0 ||
+  requirementIds.some((id) => !cli.isUuid(id))
+) {
+  cli.usage(
+    "Usage: ./get-requirement-improvements.js <project-slug> <requirement-uuid> [<requirement-uuid> ...] --release-number <name-or-slug>",
+  );
 }
 
 function wrap(value, width = 58) {
@@ -46,25 +58,42 @@ function printComparison(current, suggested) {
 cli.run(async () => {
   const client = await cli.createClient();
   const project = await cli.resolveProjectSlug(client, slug);
-  const releases = await cli.fetchAll(client, "/api/v1/release", { projectId: project.id });
-  const release = releases.find((r) => r.name === releaseNumber || r.slug === releaseNumber);
+  const releases = await cli.fetchAll(client, "/api/v1/release", {
+    projectId: project.id,
+  });
+  const release = releases.find(
+    (r) => r.name === releaseNumber || r.slug === releaseNumber,
+  );
   if (!release && releaseNumber.toLowerCase() !== "none") {
-    cli.abort(`release number "${releaseNumber}" not found. Available: ${releases.map((r) => r.name).join(", ") || "none"}`);
+    cli.abort(
+      `release number "${releaseNumber}" not found. Available: ${releases.map((r) => r.name).join(", ") || "none"}`,
+    );
   }
-
-  await cli.getContext(client, "/api/v1/project/context", { projectId: project.id });
 
   const [res, stored] = await Promise.all([
     client.get("/api/v1/requirement/improve", {
-      params: { projectId: project.id, requirementIds: requirementIds.join(",") },
+      params: {
+        projectId: project.id,
+        requirementIds: requirementIds.join(","),
+      },
     }),
-    Promise.all(requirementIds.map((id) => client.get(`/api/v1/requirement/${id}`).then((response) => response.data.data))),
+    Promise.all(
+      requirementIds.map((id) =>
+        client
+          .get(`/api/v1/requirement/${id}`)
+          .then((response) => response.data.data),
+      ),
+    ),
   ]);
   const improvements = res.data.requirementImprovements || {};
 
-  console.log(`\n=== Requirement Improvements — release ${release?.name || "none"} ===\n`);
+  console.log(
+    `\n=== Requirement Improvements — release ${release?.name || "none"} ===\n`,
+  );
   for (const requirement of stored) {
-    console.log(`Requirement ${requirement.fullyQualifiedRef || requirement.id}`);
+    console.log(
+      `Requirement ${requirement.fullyQualifiedRef || requirement.id}`,
+    );
     cli.printWebUrl(requirement, "");
     printComparison(requirement.description, improvements[requirement.id]);
     console.log();

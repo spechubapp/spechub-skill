@@ -7,7 +7,6 @@
  * Note: Entity deletion is idempotent (returns 204 on repeated calls).
  */
 const cli = require("../lib/cli");
-const { resolveEntity } = require("../lib/api-client");
 
 const [projectSlug, refOrId] = cli.positionals(process.argv.slice(2));
 
@@ -25,7 +24,7 @@ if (!projectSlug || !refOrId) {
 cli.run(async () => {
   const client = await cli.createClient();
   const project = await cli.resolveProjectSlug(client, projectSlug);
-  const entity = await resolveEntity(client, project.id, refOrId);
+  const entity = await cli.resolveEntity(client, project.id, refOrId);
 
   await client.delete(`/api/v1/entity/${entity.id}`);
 

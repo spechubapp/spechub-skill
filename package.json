@@ -1,18 +1,14 @@
 {
   "name": "spechub-skill",
   "version": "1.0.0",
-  "description": "SpecHub integration skill for pi coding agent",
-  "main": "scripts/index.js",
+  "description": "SpecHub agent skill: scripts and helpers for the SpecHub REST API",
   "scripts": {
-    "setup": "node scripts/setup.js",
+    "setup": "node scripts/add-instance.js",
     "test": "node scripts/diagnose.js"
   },
   "dependencies": {
     "axios": "^1.6.0",
-    "dotenv": "^16.3.0",
-    "commander": "^11.1.0",
-    "chalk": "^4.1.2",
-    "ora": "^5.4.1"
+    "dotenv": "^16.3.0"
   },
   "keywords": [
     "spechub",

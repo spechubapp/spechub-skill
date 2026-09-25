@@ -1,17 +1,16 @@
 # API reference
 
-All paths are relative to the selected instance URL. Use the authenticated
-client from `lib/cli.js`. Requests use JSON; identifiers are camelCase with
-lowercase `Id` / `Ids` (`projectId`, not `projectID`, which returns 400).
-For fields not documented here, consult the instance's
+Paths are relative to the instance URL; use the authenticated client from
+`lib/cli.js`. Bodies are JSON; identifiers use lowercase `Id` / `Ids`
+(`projectID` returns 400). For undocumented fields, see the instance's
 `/.well-known/openapi.yaml`.
 
 ## Resources and endpoints
 
 Organizations contain projects; projects contain features, epics, releases, and
-user roles. Requirements and entities belong to features; entities contain
-fields. Epics group features through a many-to-many association. Requirements
-and entities can also reference a release and a secondary feature.
+user roles. Requirements and entities belong to a feature and may reference a
+release and a secondary feature; entities contain fields. Epics and features
+are many-to-many.
 
 For `project`, `epic`, `feature`, `requirement`, `entity`, `release`, and
 `userrole`:
@@ -24,13 +23,11 @@ For `project`, `epic`, `feature`, `requirement`, `entity`, `release`, and
 | Partial update | `PATCH /api/v1/<resource>/{id}`  |
 | Delete         | `DELETE /api/v1/<resource>/{id}` |
 
-Organizations support `GET /api/v1/organization`. For Markdown endpoints and
-their contents, see [project context](../SKILL.md#project-context-and-analysis).
-Special endpoints are described below.
+Organizations support only `GET /api/v1/organization`. Raw context requests
+need `Accept: text/markdown` and `responseType: 'text'`.
 
-Deletes are permanent. Entity and entity-field deletes are idempotent (204
-even if already deleted); other resource deletes return 404 if absent.
-Follow the [write policy](../SKILL.md#write-confirmation).
+Deletes are permanent. Entity and entity-field deletes are idempotent (204);
+other deletes return 404 if absent.
 
 ## Lists and responses
 
@@ -56,10 +53,8 @@ Entity detail includes `fields`. Requirements/entities expose
 
 ## Create and update bodies
 
-The table separates required create fields from optional fields. For PATCH,
-send only changed fields; omit the creation-only parent ID
-(`organizationId` for projects, `projectId` for other resources).
-PATCH-only fields are listed separately.
+For PATCH, send only changed fields and omit the parent ID (`organizationId` /
+`projectId`).
 
 | Resource    | Required on create                      | Optional on create and PATCH                   | PATCH only      |
 | ----------- | --------------------------------------- | ---------------------------------------------- | --------------- |
@@ -79,11 +74,7 @@ Shared requirement/entity fields:
 - `acceptanceCriteria`: array of strings.
 - `businessCritical`: boolean.
 
-`requirementType` is `Functional`, `Design`, or `Performance`.
-Apply the [requirement rules](../SKILL.md#requirement-creation) for release
-selection and description overflow before preparing the final body.
-
-Example requirement body:
+`requirementType` is `Functional`, `Design`, or `Performance`. Example:
 
 ```json
 {
@@ -118,9 +109,8 @@ Serialize IDs as one comma-separated parameter
 (`?projectId=<uuid>&requirementIds=uuid1,uuid2`), not repeated parameters.
 
 Response: `{ "requirementImprovements": { "<uuid>": "Suggested text" } }`.
-Requirements outside the project return 404; individual processing failures
-produce an empty string for that ID. Evaluate suggestions against project
-context before recommending them.
+Requirements outside the project return 404; a failed item yields `""`. Vet
+suggestions against project context and the authoring rules.
 
 ## Entity fields
 
@@ -157,9 +147,8 @@ Axios's default `fieldIds[]=uuid` is rejected. Use
 
 ## Authentication and errors
 
-`POST /api/v1/auth/token/refresh` exchanges
-`{ "personalAccessToken": "<pat>" }` for `{ token, expires }`.
-The client handles this and sends `Authorization: Bearer <token>`.
+The client exchanges the PAT at `POST /api/v1/auth/token/refresh` and sends
+`Authorization: Bearer <token>`.
 
 Errors use RFC 9457 `application/problem+json`; surface `title` and `detail`.
 For 401, use `scripts/check-auth.js`; for connectivity problems, use

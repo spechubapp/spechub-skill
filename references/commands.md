@@ -1,183 +1,111 @@
 # Commands and helpers
 
-Run from the skill directory; every script accepts `--instance <name>` anywhere
-in its arguments. Positional arguments below precede other flags.
-Follow [write confirmation](../SKILL.md#write-confirmation) before running
-commands that change SpecHub data.
+Run from the skill directory. Positional arguments come first; `--instance
+<name>` may appear anywhere. `<project>` is a slug or UUID; `<ref-or-uuid>` is a
+`fullyQualifiedRef` such as `1.23` or a UUID.
 
-## Setup
-
-Run `npm install` if dependencies are missing. Add an instance interactively
-with `./scripts/add-instance.js`, or use its flags below. Check credentials
-with `check-auth.js`; use `diagnose.js` for connection problems.
-
-## Instance management
+## Setup and instances
 
 ```bash
-./scripts/add-instance.js [name] [--url <url>] [--pat <token>] [--default]
+./scripts/add-instance.js [name] [--url <url>] [--pat <token>] [--default]  # interactive without args
 ./scripts/list-instances.js
 ./scripts/use-instance.js <name>
 ./scripts/remove-instance.js <name>
-./scripts/check-auth.js
-./scripts/diagnose.js             # connection + auth diagnostics
+./scripts/check-auth.js       # verify the PAT
+./scripts/diagnose.js         # connection + auth diagnostics
 ```
 
-## Organizations
+## Projects, epics, features, releases, user roles
 
 ```bash
 ./scripts/list-organizations.js
-```
-
-## Projects
-
-```bash
 ./scripts/list-projects.js
-./scripts/get-project-context.js <slug> [output.md]
-./scripts/analyze-project.js <slug>
+./scripts/analyze-project.js <project>          # counts + project context
+./scripts/get-project-context.js <project> [output.md]
 ./scripts/delete-project.js <project-uuid>
-```
 
-## Epics
+./scripts/list-{epics,features,releases,userroles}.js <project>
+./scripts/create-{epic,feature,release,userrole}.js <project> <name> [description]
+./scripts/delete-{epic,feature,release,userrole}.js <uuid>
+./scripts/get-{epic,feature,release}-context.js <uuid> [output.md]
 
-```bash
-./scripts/list-epics.js <project-slug>
-./scripts/get-epic-context.js <epic-uuid> [output.md]
+./scripts/update-epic.js <uuid> [--name] [--description] [--notes] [--slug]
+./scripts/update-feature.js <uuid> [--name] [--description] [--notes] [--source]
+./scripts/update-release.js <uuid> [--name] [--description] [--slug] [--shipped true|false]
+./scripts/update-userrole.js <uuid> [--name] [--description]
+
 ./scripts/get-epic-features.js <epic-uuid>
-./scripts/set-epic-features.js <epic-uuid> <feature-uuid> [<feature-uuid> ...]
-./scripts/create-epic.js <project-slug> <name> [description]
-./scripts/update-epic.js <epic-uuid> [--name "..."] [--description "..."] [--notes "..."] [--slug "..."]
-./scripts/delete-epic.js <epic-uuid>
+./scripts/set-epic-features.js <epic-uuid> <feature-uuid>...   # replaces the full set
 ```
 
-## Features
+## Requirements and entities
 
 ```bash
-./scripts/list-features.js <project-slug>
-./scripts/get-feature-context.js <feature-uuid> [output.md]
-./scripts/create-feature.js <project-slug> <name> [description]
-./scripts/update-feature.js <feature-uuid> [--name "..."] [--description "..."] [--notes "..."] [--source "..."]
-./scripts/delete-feature.js <feature-uuid>
+./scripts/list-requirements.js <project> [filters]
+./scripts/get-entities.js <project> [filters]
+  # filters: --feature, --epic, --release, --secondary-feature <uuid>,
+  #          --refs 1.2,3.4, --include-deprecated
+
+./scripts/get-requirement.js <project> <ref-or-uuid>
+./scripts/get-entity.js <project> <ref-or-uuid>
+
+./scripts/create-requirement.js <project> <feature-uuid> <description> --formulation <type> [--type] [item flags]
+./scripts/update-requirement.js <project> <ref-or-uuid> [--description <text> --formulation <type>] [--type] [--feature <uuid>] [item flags]
+./scripts/create-entity.js <project> <feature-uuid> <entity-name> [item flags]
+./scripts/update-entity.js <project> <ref-or-uuid> [--entity-name] [--feature <uuid>] [item flags]
+  # --formulation: simple | user-role-capability | event-triggered | constraint | state-based
+  # --type: Functional | Design | Performance
+  # item flags: --status Untested|Passing|Failing|Deprecated, --release <uuid>,
+  #   --secondary-feature <uuid>, --source, --notes, --business-critical true|false,
+  #   --acceptance-criteria (update only)
+
+./scripts/get-requirement-improvements.js <project> <requirement-uuid>... --release-number <name|none>
+./scripts/set-entity-fields.js <project> <ref-or-uuid> --fields <file.json>       # body: api.md
+./scripts/set-entity-fields.js <project> <ref-or-uuid> --delete <field-uuid>[,...]
+./scripts/delete-requirement.js <project> <ref-or-uuid>   # refuses shipped releases
+./scripts/delete-entity.js <project> <ref-or-uuid>
 ```
 
-## Requirements
-
-```bash
-./scripts/list-requirements.js <project-slug> [options]
-  Options: --feature <uuid>, --epic <uuid>, --release <uuid>,
-           --secondary-feature <uuid>, --refs <1.2,3.4>,
-           --include-deprecated
-
-./scripts/get-requirement.js <project-slug> <requirement-ref-or-uuid>
-  # Get full details of a requirement by ref (e.g. "133.8") or UUID
-
-./scripts/create-requirement.js <project-slug> <feature-uuid> <description> [options]
-  Options: --formulation simple|user-role-capability|event-triggered|constraint|state-based
-           --type Functional|Design|Performance
-           --status Untested|Passing|Failing|Deprecated
-           --release <uuid>, --secondary-feature <uuid>
-           --source, --notes, --business-critical true|false
-
-./scripts/update-requirement.js <project-slug> <requirement-ref-or-uuid> [options]
-  Options: --description (requires --formulation), --type, --status, --feature <uuid>, --release <uuid>,
-           --secondary-feature <uuid>, --source, --notes,
-           --acceptance-criteria, --business-critical true|false
-
-./scripts/get-requirement-improvements.js <project-slug> <requirement-uuid> [<requirement-uuid> ...] --release-number <name-or-slug>
-
-./scripts/delete-requirement.js <project-slug> <requirement-ref-or-uuid>
-```
-
-## Entities
-
-```bash
-./scripts/get-entities.js <project-slug> [options]
-  Options: --feature <uuid>, --epic <uuid>, --release <uuid>,
-           --secondary-feature <uuid>, --refs <1.2,3.4>,
-           --include-deprecated
-
-./scripts/get-entity.js <project-slug> <entity-ref-or-uuid>
-  # Get full details of an entity by ref (e.g. "1.1") or UUID
-
-./scripts/create-entity.js <project-slug> <feature-uuid> <entity-name> [options]
-  Options: --release <uuid>, --secondary-feature <uuid>, --status Untested|Passing|Failing|Deprecated,
-           --source, --notes, --business-critical true|false
-
-./scripts/update-entity.js <project-slug> <entity-ref-or-uuid> [options]
-  Options: --entity-name, --feature <uuid>, --release <uuid>,
-           --secondary-feature <uuid>, --status Untested|Passing|Failing|Deprecated, --source, --notes,
-           --acceptance-criteria, --business-critical true|false
-
-./scripts/set-entity-fields.js <project-slug> <entity-ref-or-uuid> --fields <file.json>
-  # JSON body and field types: see api.md, Entity fields.
-./scripts/set-entity-fields.js <project-slug> <entity-ref-or-uuid> --delete <field-uuid>[,<field-uuid>...]
-
-./scripts/delete-entity.js <project-slug> <entity-ref-or-uuid>
-```
-
-## Releases
-
-```bash
-./scripts/list-releases.js <project-slug>
-./scripts/get-release-context.js <release-uuid> [output.md]
-./scripts/create-release.js <project-slug> <name> [description]
-./scripts/update-release.js <release-uuid> [--name "..."] [--description "..."] [--slug "..."] [--shipped true|false]
-./scripts/delete-release.js <release-uuid>
-```
-
-## User Roles
-
-```bash
-./scripts/list-userroles.js <project-slug>
-./scripts/create-userrole.js <project-slug> <name> [description]
-./scripts/update-userrole.js <userrole-uuid> [--name "..."] [--description "..."]
-./scripts/delete-userrole.js <userrole-uuid>
-```
+`update-requirement.js` refuses content changes to requirements in shipped
+releases.
 
 ## Direct API usage
 
-Use direct requests for operations or values a script cannot express, such as
-project creation, JSON arrays, or null relationship IDs. The scripts do not
-convert `--release null` to JSON null or `--acceptance-criteria` to an array.
-
-Example from a script in `scripts/`:
+Write a script for what the scripts cannot express, such as project creation,
+acceptance-criteria arrays, or clearing a relationship with `null` (scripts
+send flag values as strings).
 
 ```javascript
-const cli = require("../lib/cli");
+const cli = require("../lib/cli"); // from a file in scripts/
 cli.run(async () => {
   const client = await cli.createClient();
   const project = await cli.resolveProjectSlug(client, "spechub");
-  const context = await cli.getContext(client, "/api/v1/project/context", {
-    projectId: project.id,
-  });
-  console.log(context);
+  console.log(
+    await cli.getContext(client, "/api/v1/project/context", {
+      projectId: project.id,
+    }),
+  );
 });
 ```
 
-For an explicit instance, pass
-`require("../lib/instances").getConfig("staging")` to `createClient()`.
-Resolve each instance's identifiers with its own client.
+For another instance, pass `require("../lib/instances").getConfig("staging")`
+to `createClient()`; resolve each instance's identifiers with its own client.
 
 ## Helpers
 
-`lib/cli.js` re-exports the API helpers; use `lib/api-client.js` directly for
-library-only usage without automatic `.env` loading.
+`lib/cli.js` loads `.env` and re-exports `lib/api-client.js`.
 
-| Helper                                                                  | Behavior                                                                              |
-| ----------------------------------------------------------------------- | ------------------------------------------------------------------------------------- |
-| `createClient(config?)` / `getAccessToken(config?)`                     | Authenticate with optional `{ url, pat }`; tokens refresh within 60 seconds of expiry |
-| `fetchAll(client, path, params)`                                        | Return all list pages                                                                 |
-| `getContext(client, path, params)`                                      | Return Markdown                                                                       |
-| `printContext(client, path, params, { title, outputFile })`             | Print Markdown and optionally save it                                                 |
-| `listProjects(client)`                                                  | Project list cached per process                                                       |
-| `resolveProjectSlug(client, slugOrId)`                                  | Resolve a project from the cached list                                                |
-| `resolveRequirement(client, projectId, refOrId)` / `resolveEntity(...)` | UUID: detail response; ref: filtered list item                                        |
-| `isUuid(value)`                                                         | Distinguish UUID from slug/ref                                                        |
-| `parseFlags(args, start=0)`                                             | Parse flags and bare booleans                                                         |
-| `buildBody(flags, spec)`                                                | Map supplied flags to body keys, optionally transforming values                       |
-| `bool(value)`                                                           | True for bare flag or string `true`                                                   |
-| `splitDescription(description, existingNotes)`                          | Return `{ description, notes }` respecting the requirement length limit               |
-| `run(main)` / `abort(message)` / `usage(...lines)`                      | Error handling and CLI exits                                                          |
-
-Inspect [lib/cli.js](../lib/cli.js) or [lib/instances.js](../lib/instances.js)
-when extending scripts. Ref resolution returns a lighter list item; fetch
-detail before relying on existing notes or other omitted fields.
+| Helper                                                                         | Behavior                                                        |
+| ------------------------------------------------------------------------------ | --------------------------------------------------------------- |
+| `createClient(config?)` / `getAccessToken(config?)`                            | Authenticate with optional `{ url, pat }`; tokens auto-refresh  |
+| `fetchAll(client, path, params)`                                               | All pages of a list                                             |
+| `getContext(client, path, params)`                                             | Markdown context                                                |
+| `printContext(client, path, params, { title, outputFile })`                    | Print and optionally save context                               |
+| `resolveProjectSlug(client, slugOrId)`                                         | Project from a per-process cached list                          |
+| `resolveRequirement` / `resolveEntity(client, projectId, refOrId, { detail })` | UUID → detail; ref → list item, or detail with `detail: true`   |
+| `abortIfShipped(client, requirement, advice)`                                  | Exit if the requirement's release is shipped                    |
+| `splitDescription(description, existingNotes)`                                 | `{ description, notes }` within the 300-character limit         |
+| `validateRequirementFormulation(description, formulation)`                     | Exit unless the description matches the formulation's structure |
+| `parseFlags(args, start)` / `positionals(args)` / `bool(value)`                | Argument parsing                                                |
+| `buildBody(flags, spec)`                                                       | Map supplied flags to body keys, with optional transforms       |
+| `run(main)` / `abort(message)` / `usage(...lines)`                             | Error handling and exits                                        |

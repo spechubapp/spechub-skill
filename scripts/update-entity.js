@@ -15,7 +15,6 @@
  *   --business-critical true|false
  */
 const cli = require("../lib/cli");
-const { resolveEntity } = require("../lib/api-client");
 
 const args = process.argv.slice(2);
 const [projectSlug, refOrId] = cli.positionals(args);
@@ -33,7 +32,7 @@ cli.run(async () => {
   const flags = cli.parseFlags(args, 2);
   const client = await cli.createClient();
   const project = await cli.resolveProjectSlug(client, projectSlug);
-  const entity = await resolveEntity(client, project.id, refOrId);
+  const entity = await cli.resolveEntity(client, project.id, refOrId);
 
   const body = cli.buildBody(flags, {
     "entity-name": "entityName",

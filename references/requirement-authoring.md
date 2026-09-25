@@ -1,18 +1,13 @@
 # Requirement authoring
 
-Read this reference before drafting, suggesting, reviewing, or improving
-requirements, including suggestions returned by the improvement API.
-
-Based on [SpecHub core concepts](https://spechub.app/docs/core-concepts), with
-canonical templates and the mandatory classification and preflight rules below.
-Use the project's context for its roles, terminology, entities, and release
-scope, as required by [SKILL.md](../SKILL.md#project-context-and-analysis).
+Applies to every drafted, reviewed, or improved requirement, including
+improvement-API suggestions. Based on
+[SpecHub core concepts](https://spechub.app/docs/core-concepts).
 
 ## Five formulation types
 
-Every proposed requirement must use exactly one of these types. Angle brackets
-in the templates indicate text to replace. Use present-tense, observable
-behavior; optional context qualifiers must not introduce another behavior.
+Angle brackets mark text to replace. Use present-tense, observable behavior;
+qualifiers must not introduce another behavior.
 
 ### Simple
 
@@ -78,17 +73,14 @@ Specify the condition itself rather than a passive page-view trigger.
 
 ## Classification and quality
 
-Assign exactly one formulation type to each proposal. Classify by the main
-assertion: baseline behavior, role capability, action response, prohibition or
-limit, or state-dependent behavior. If a statement needs multiple types,
-rewrite or split it until each requirement fits one canonical form.
+Classify each proposal by its main assertion into exactly one type; split or
+rewrite anything that needs more than one. Label drafts, e.g.
+`[State-based] If ...`; if the output omits labels, still classify every item
+before presenting it. In reviews, flag nonconforming items and propose
+classified replacements; never silently rewrite stored requirements.
 
-Label drafts with the type, for example `[State-based] If ...`. If the requested
-output omits labels, perform an explicit classification pass over every item
-before presenting it. For reviews, identify nonconforming items and propose
-classified replacements; do not silently rewrite stored requirements.
-
-Each requirement must be:
+Before presenting each requirement, confirm it uses its type's canonical form
+and the project's roles and terminology, and that it is:
 
 - **Atomic:** one independently testable behavior or constraint. Split separate
   outcomes that could pass or fail independently.
@@ -110,19 +102,8 @@ Formulation type describes sentence structure. It is **not** the API
 `Performance`. Choose that category independently; never send formulation
 labels as API category values or insert draft labels into stored descriptions.
 
-## Preflight checklist
-
-Before presenting each proposed requirement, verify:
-
-- Does it match exactly one of the five types?
-- Does it use the canonical structure?
-- Does it express one independently testable behavior?
-- Does it use project roles and terminology?
-- Does it avoid combining separate behaviors with “and”?
-
-Revise any failing item before presenting it. Recheck the final description
-after edits or length splitting so its behavior and essential conditions remain
-clear and testable; use notes for supporting detail.
+Recheck the final description after edits or length splitting; keep the
+behavior and essential conditions in it and supporting detail in notes.
 
 ## Views and routes
 
@@ -132,6 +113,5 @@ primary feature and the secondary feature named `URLs (routes)`; create that
 feature if the project lacks it. Use application-wide UUIDs for IDs in paths,
 and prefer `/<entity>/<id>` for entity detail views. This application has no
 organization segment, so omit `<org>` from every route. For example: “The
-application routes release detail views at `/releases/<id>`.” Classify each
-route requirement under one of the five formulation types and include its
-release number like any other proposal.
+application routes release detail views at `/releases/<id>`.” Classify route requirements and assign their release like
+any other.

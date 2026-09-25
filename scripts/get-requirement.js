@@ -26,10 +26,14 @@ if (!projectSlug || !refOrId) {
 cli.run(async () => {
   const client = await cli.createClient();
   const project = await cli.resolveProjectSlug(client, projectSlug);
-  const { resolveRequirement } = require("../lib/api-client");
-
-  // Resolve ref to requirement object (includes UUID and all details)
-  const requirement = await resolveRequirement(client, project.id, refOrId);
+  const requirement = await cli.resolveRequirement(
+    client,
+    project.id,
+    refOrId,
+    {
+      detail: true,
+    },
+  );
 
   console.log(`\n=== Requirement ${requirement.fullyQualifiedRef} ===\n`);
   console.log(`ID:          ${requirement.id}`);

@@ -120,8 +120,7 @@ const body = deleteIds ? null : readFieldsBody(flags.fields);
 cli.run(async () => {
   const client = await cli.createClient();
   const project = await cli.resolveProjectSlug(client, projectSlug);
-  const { resolveEntity } = require("../lib/api-client");
-  const entity = await resolveEntity(client, project.id, refOrId);
+  const entity = await cli.resolveEntity(client, project.id, refOrId);
   const path = `/api/v1/entity/${entity.id}/fields`;
 
   if (deleteIds) {

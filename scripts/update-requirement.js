@@ -55,18 +55,21 @@ cli.run(async () => {
 
   const client = await cli.createClient();
   const project = await cli.resolveProjectSlug(client, projectSlug);
-  const { resolveRequirement } = require("../lib/api-client");
-  const resolved = await resolveRequirement(client, project.id, refOrId);
-  const requirement = (await client.get(`/api/v1/requirement/${resolved.id}`)).data.data;
+  const requirement = await cli.resolveRequirement(
+    client,
+    project.id,
+    refOrId,
+    {
+      detail: true,
+    },
+  );
 
-  const changesContent = Object.keys(body).some((key) => key !== "status");
-  if (changesContent && requirement.releaseId) {
-    const releaseRes = await client.get(`/api/v1/release/${requirement.releaseId}`);
-    if (releaseRes.data.data.shipped) {
-      cli.abort(
-        `requirement ${requirement.fullyQualifiedRef} belongs to a shipped release. Create a replacement requirement in the intended release, then deprecate this one.`,
-      );
-    }
+  if (Object.keys(body).some((key) => key !== "status")) {
+    await cli.abortIfShipped(
+      client,
+      requirement,
+      "create a replacement requirement in the intended release, then deprecate this one.",
+    );
   }
 
   // Handle description length limit (300 chars) if description is being updated
