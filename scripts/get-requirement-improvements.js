@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /**
  * Show stored and AI-suggested requirement descriptions side by side.
- * Usage: ./get-requirement-improvements.js <project-slug> <requirement-uuid> [<requirement-uuid> ...] --release-number <name-or-slug>
+ * Usage: ./get-requirement-improvements.js <project-slug> <requirement-ref-or-uuid> [<requirement-ref-or-uuid> ...] --release-number <name-or-slug>
  */
 const cli = require("../lib/cli");
 
@@ -18,14 +18,10 @@ if (
 }
 const releaseNumber = args[releaseIndex + 1];
 args.splice(releaseIndex, 2);
-const [slug, ...requirementIds] = args;
-if (
-  !slug ||
-  requirementIds.length === 0 ||
-  requirementIds.some((id) => !cli.isUuid(id))
-) {
+const [slug, ...requirementRefs] = args;
+if (!slug || requirementRefs.length === 0) {
   cli.usage(
-    "Usage: ./get-requirement-improvements.js <project-slug> <requirement-uuid> [<requirement-uuid> ...] --release-number <name-or-slug>",
+    "Usage: ./get-requirement-improvements.js <project-slug> <requirement-ref-or-uuid> [<requirement-ref-or-uuid> ...] --release-number <name-or-slug>",
   );
 }
 
@@ -70,21 +66,18 @@ cli.run(async () => {
     );
   }
 
-  const [res, stored] = await Promise.all([
-    client.get("/api/v1/requirement/improve", {
-      params: {
-        projectId: project.id,
-        requirementIds: requirementIds.join(","),
-      },
-    }),
-    Promise.all(
-      requirementIds.map((id) =>
-        client
-          .get(`/api/v1/requirement/${id}`)
-          .then((response) => response.data.data),
-      ),
+  // Refs and UUIDs both resolve to requirement detail. REQ 8.5
+  const stored = await Promise.all(
+    requirementRefs.map((refOrId) =>
+      cli.resolveRequirement(client, project.id, refOrId, { detail: true }),
     ),
-  ]);
+  );
+  const res = await client.get("/api/v1/requirement/improve", {
+    params: {
+      projectId: project.id,
+      requirementIds: stored.map((r) => r.id).join(","),
+    },
+  });
   const improvements = res.data.requirementImprovements || {};
 
   console.log(

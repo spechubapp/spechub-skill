@@ -115,7 +115,9 @@ suggestions against project context and the authoring rules.
 ## Entity fields
 
 `PATCH /api/v1/entity/{entityId}/fields` upserts fields: include `id` to
-update (including renames), omit it to create.
+update (including renames), omit it to create. Field names must match
+`^[a-z0-9_]+$` (e.g. `api_url`, not `apiUrl`); the request is rejected
+otherwise.
 
 ```json
 {
