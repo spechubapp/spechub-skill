@@ -3,7 +3,8 @@ name: spechub
 description: >
   Browse, analyze, and manage SpecHub projects, epics, features, requirements,
   entities, releases, and user roles across named instances. Use for tasks
-  involving SpecHub (go.spechub.app) data.
+  involving SpecHub (go.spechub.app) data, or code changes in a repository
+  already linked to SpecHub requirements.
 license: MIT
 ---
 
@@ -63,6 +64,39 @@ Every proposed requirement must match exactly one type and be atomic,
 objective, unambiguous, and verifiable. Label suggestions with their formulation
 type, or explicitly classify every requirement before presenting the set.
 These formulation types are distinct from the API's `requirementType` category.
+The create and description-update scripts require `--formulation` and reject
+descriptions that do not follow the selected type's canonical structure. Review
+the meaning and testability yourself; a structural check cannot establish them.
+
+## Requirement suggestions and changes
+
+Before suggesting any new or revised requirement, always ask the user for a
+release number. Show the project's available releases from project context and
+resolve the answer to its release UUID. If there is no matching release, ask
+whether to create that release or explicitly leave the requirement unassigned.
+Do not present the suggestion until the user answers. Include the selected
+release number with every suggestion. For an update, show the
+stored description and the proposed description side by side, with its ref and
+`webUrl` link. Do not apply a suggestion before the user accepts it.
+
+Check the requirement's current release before changing its meaning, scope,
+type, acceptance criteria, or feature assignment. If that release is shipped,
+create a replacement requirement in an unshipped intended release, then mark
+the old requirement `Deprecated`; do not rewrite the shipped requirement in
+place. If the requirement does not belong to a shipped release, deletion may
+be used instead of deprecation when the user wants to remove it. Status or test
+result updates that do not change the requirement's meaning may update in place.
+
+When working in a code repository already linked to SpecHub, inspect relevant
+code changes and their nearby requirement references. At the end of a code
+change, compare the changed behavior with the project's requirements and
+proactively suggest any needed requirement additions or updates, following the
+release and comparison rules above. Once the user accepts and the SpecHub
+writes are complete, add the accepted requirement refs near the implementing
+code using the repository's existing comment or metadata convention. Keep references short and useful; do
+not add comments that merely restate the code. When making a commit, include
+applicable requirement refs in its message when known (for example, `Refs:
+1.23, 2.4`). Do not invent refs or block a commit when none applies.
 
 ## Requirement creation
 
@@ -100,6 +134,10 @@ direct API callers must handle it themselves.
 - List items omit details such as notes, source, acceptance criteria, and
   entity fields. Fetch detail only when needed. Requirements/entities exclude
   deprecated items by default; use `includeDeprecated=true` when relevant.
+- Link SpecHub objects in user-facing responses using their `webUrl` when
+  present, with the human-readable ref or name as the link text. If a response
+  lacks `webUrl`, fetch detail when practical; otherwise show the ref or name
+  without inventing a URL.
 
 ## Instance and execution
 

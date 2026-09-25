@@ -24,8 +24,9 @@ cli.run(async () => {
   if (features.length === 0) return console.log("No features found.");
 
   features.forEach((f, i) => {
-    console.log(`${i + 1}. ${f.name}`);
+    console.log(`${f.ref}. ${f.name}`);
     console.log(`   ID: ${f.id}`);
+    cli.printWebUrl(f, "   ");
     if (f.description) {
       const desc = f.description.substring(0, 100);
       console.log(`   ${desc}${f.description.length > 100 ? "..." : ""}`);

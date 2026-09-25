@@ -28,4 +28,5 @@ cli.run(async () => {
   console.log(`  Name: ${created.name}`);
   console.log(`  ID:   ${created.id}`);
   if (created.description) console.log(`  Description: ${created.description}`);
+  cli.printWebUrl(created);
 });

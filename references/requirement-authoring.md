@@ -123,3 +123,15 @@ Before presenting each proposed requirement, verify:
 Revise any failing item before presenting it. Recheck the final description
 after edits or length splitting so its behavior and essential conditions remain
 clear and testable; use notes for supporting detail.
+
+## Views and routes
+
+For each feature that needs an application view, write a separate requirement
+describing that view's URL pattern. Assign the route requirement to the view's
+primary feature and the secondary feature named `URLs (routes)`; create that
+feature if the project lacks it. Use application-wide UUIDs for IDs in paths,
+and prefer `/<entity>/<id>` for entity detail views. This application has no
+organization segment, so omit `<org>` from every route. For example: “The
+application routes release detail views at `/releases/<id>`.” Classify each
+route requirement under one of the five formulation types and include its
+release number like any other proposal.

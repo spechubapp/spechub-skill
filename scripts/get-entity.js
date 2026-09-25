@@ -81,6 +81,6 @@ cli.run(async () => {
   console.log(`Test Coverage:     ${entity.automatedTestCoverageType}`);
   console.log(`Created:           ${entity.created}`);
   console.log(`Updated:           ${entity.updated}`);
-  console.log(`Web URL:           ${entity.webUrl}`);
+  cli.printWebUrl(entity, "");
   console.log();
 });

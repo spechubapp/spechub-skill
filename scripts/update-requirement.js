@@ -5,6 +5,7 @@
  *
  * Options:
  *   --description <text>
+ *   --formulation simple|user-role-capability|event-triggered|constraint|state-based (required with --description)
  *   --type Functional|Design|Performance
  *   --status Untested|Passing|Failing|Deprecated
  *   --feature <feature-uuid>
@@ -23,7 +24,7 @@ const [projectSlug, refOrId] = cli.positionals(args);
 if (!projectSlug || !refOrId) {
   cli.usage(
     "Usage: ./update-requirement.js <project-slug> <requirement-ref-or-uuid> [options]",
-    "Options: --description, --type, --status, --feature <uuid>, --release <uuid>,",
+    "Options: --description, --formulation <type>, --type, --status, --feature <uuid>, --release <uuid>,",
     "         --secondary-feature <uuid>, --source, --notes, --acceptance-criteria, --business-critical true|false",
     "Example: ./update-requirement.js spechub 1.23 --status Passing",
   );
@@ -31,6 +32,11 @@ if (!projectSlug || !refOrId) {
 
 cli.run(async () => {
   const flags = cli.parseFlags(args, 2);
+  if (flags.description !== undefined) {
+    cli.validateRequirementFormulation(flags.description, flags.formulation);
+  } else if (flags.formulation !== undefined) {
+    cli.abort("--formulation requires --description");
+  }
   const body = cli.buildBody(flags, {
     description: "description",
     type: "requirementType",
@@ -50,7 +56,18 @@ cli.run(async () => {
   const client = await cli.createClient();
   const project = await cli.resolveProjectSlug(client, projectSlug);
   const { resolveRequirement } = require("../lib/api-client");
-  const requirement = await resolveRequirement(client, project.id, refOrId);
+  const resolved = await resolveRequirement(client, project.id, refOrId);
+  const requirement = (await client.get(`/api/v1/requirement/${resolved.id}`)).data.data;
+
+  const changesContent = Object.keys(body).some((key) => key !== "status");
+  if (changesContent && requirement.releaseId) {
+    const releaseRes = await client.get(`/api/v1/release/${requirement.releaseId}`);
+    if (releaseRes.data.data.shipped) {
+      cli.abort(
+        `requirement ${requirement.fullyQualifiedRef} belongs to a shipped release. Create a replacement requirement in the intended release, then deprecate this one.`,
+      );
+    }
+  }
 
   // Handle description length limit (300 chars) if description is being updated
   if (body.description) {
@@ -74,4 +91,5 @@ cli.run(async () => {
       `  Notes: ${req.notes.slice(0, 100)}${req.notes.length > 100 ? "..." : ""}`,
     );
   console.log(`  ID:     ${req.id}`);
+  cli.printWebUrl(req);
 });

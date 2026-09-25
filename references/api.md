@@ -89,7 +89,7 @@ Example requirement body:
 {
   "projectId": "<uuid>",
   "featureId": "<uuid>",
-  "description": "The system shall ...",
+  "description": "The application displays a login form.",
   "requirementType": "Functional",
   "status": "Untested",
   "releaseId": "<uuid>",

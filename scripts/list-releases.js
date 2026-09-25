@@ -25,6 +25,7 @@ cli.run(async () => {
       `${i + 1}. ${r.name}${r.shipped ? " ✓ shipped" : " (unshipped)"}`,
     );
     console.log(`   ID: ${r.id}`);
+    cli.printWebUrl(r, "   ");
     if (r.description) console.log(`   ${r.description}`);
     console.log();
   });

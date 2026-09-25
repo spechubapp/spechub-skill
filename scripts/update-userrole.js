@@ -33,4 +33,5 @@ cli.run(async () => {
   console.log(`  Name: ${role.name}`);
   console.log(`  ID:   ${role.id}`);
   if (role.description) console.log(`  Description: ${role.description}`);
+  cli.printWebUrl(role);
 });

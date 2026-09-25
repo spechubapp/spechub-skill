@@ -52,6 +52,7 @@ cli.run(async () => {
     console.log(`${r.fullyQualifiedRef}${type}${status}`);
     console.log(`  ${r.description}`);
     console.log(`  ID: ${r.id}`);
+    cli.printWebUrl(r);
     console.log();
   });
 

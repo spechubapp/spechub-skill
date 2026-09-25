@@ -58,4 +58,5 @@ cli.run(async () => {
   console.log(`  Entity name: ${updated.entityName}`);
   if (updated.status) console.log(`  Status:      ${updated.status}`);
   console.log(`  ID:          ${updated.id}`);
+  cli.printWebUrl(updated);
 });

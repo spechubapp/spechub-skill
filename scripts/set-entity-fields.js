@@ -141,6 +141,7 @@ cli.run(async () => {
   }
 
   const res = await client.patch(path, body);
+  cli.printWebUrl(res.data.data);
   console.log(
     `\nUpserted ${body.fields.length} field(s) on ${entity.entityName} (${entity.id}).`,
   );

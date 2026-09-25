@@ -38,4 +38,5 @@ cli.run(async () => {
   console.log(`  ID:      ${release.id}`);
   console.log(`  Shipped: ${release.shipped}`);
   if (release.description) console.log(`  Description: ${release.description}`);
+  cli.printWebUrl(release);
 });

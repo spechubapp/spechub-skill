@@ -47,5 +47,5 @@ cli.run(async () => {
   console.log(`  Entity name: ${entity.entityName}`);
   if (entity.status) console.log(`  Status:      ${entity.status}`);
   console.log(`  ID:          ${entity.id}`);
-  if (entity.webUrl) console.log(`  URL:         ${entity.webUrl}`);
+  cli.printWebUrl(entity);
 });

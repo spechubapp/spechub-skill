@@ -25,9 +25,10 @@ cli.run(async () => {
 
   console.log(`\nEpic features updated successfully!\n`);
   console.log(`Total associated features: ${features.length}`);
-  features.forEach((f, i) =>
-    console.log(`  ${i + 1}. ${f.name} (ref: ${f.ref}, id: ${f.id})`),
-  );
+  features.forEach((f, i) => {
+    console.log(`  ${i + 1}. ${f.name} (ref: ${f.ref}, id: ${f.id})`);
+    cli.printWebUrl(f);
+  });
 
   if (res.data.pagination?.hasNext) {
     console.log("\n(There are more features; use pagination to see all.)");

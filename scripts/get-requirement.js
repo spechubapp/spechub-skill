@@ -68,6 +68,6 @@ cli.run(async () => {
   console.log(`Test Coverage:     ${requirement.automatedTestCoverageType}`);
   console.log(`Created:           ${requirement.created}`);
   console.log(`Updated:           ${requirement.updated}`);
-  console.log(`Web URL:           ${requirement.webUrl}`);
+  cli.printWebUrl(requirement, "");
   console.log();
 });

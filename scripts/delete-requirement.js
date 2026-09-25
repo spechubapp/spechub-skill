@@ -23,7 +23,14 @@ if (!projectSlug || !refOrId) {
 cli.run(async () => {
   const client = await cli.createClient();
   const project = await cli.resolveProjectSlug(client, projectSlug);
-  const requirement = await resolveRequirement(client, project.id, refOrId);
+  const resolved = await resolveRequirement(client, project.id, refOrId);
+  const requirement = (await client.get(`/api/v1/requirement/${resolved.id}`)).data.data;
+  if (requirement.releaseId) {
+    const release = (await client.get(`/api/v1/release/${requirement.releaseId}`)).data.data;
+    if (release.shipped) {
+      cli.abort(`requirement ${requirement.fullyQualifiedRef} belongs to a shipped release; mark it Deprecated instead of deleting it.`);
+    }
+  }
 
   await client.delete(`/api/v1/requirement/${requirement.id}`);
   console.log(

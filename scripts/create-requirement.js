@@ -5,6 +5,7 @@
  *
  * Options:
  *   --type Functional|Design|Performance
+ *   --formulation simple|user-role-capability|event-triggered|constraint|state-based
  *   --status Untested|Passing|Failing|Deprecated
  *   --release <release-uuid>
  *   --secondary-feature <feature-uuid>
@@ -20,13 +21,14 @@ const [slug, featureId, description] = cli.positionals(args);
 if (!slug || !featureId || !description) {
   cli.usage(
     "Usage: ./create-requirement.js <project-slug> <feature-uuid> <description> [options]",
-    "Options: --type, --status, --release <uuid>, --secondary-feature <uuid>, --source, --notes, --business-critical true|false",
-    'Example: ./create-requirement.js spechub abc-123 "The system shall allow users to log in" --status Untested',
+    "Options: --formulation <type>, --type, --status, --release <uuid>, --secondary-feature <uuid>, --source, --notes, --business-critical true|false",
+    'Example: ./create-requirement.js spechub abc-123 "The application displays a login form." --formulation simple --status Untested',
   );
 }
 
 cli.run(async () => {
   const flags = cli.parseFlags(args, 3);
+  cli.validateRequirementFormulation(description, flags.formulation);
   const client = await cli.createClient();
   const project = await cli.resolveProjectSlug(client, slug);
 
@@ -63,5 +65,5 @@ cli.run(async () => {
       `  Notes: ${req.notes.slice(0, 100)}${req.notes.length > 100 ? "..." : ""}`,
     );
   console.log(`  ID:   ${req.id}`);
-  if (req.webUrl) console.log(`  URL:  ${req.webUrl}`);
+  cli.printWebUrl(req);
 });

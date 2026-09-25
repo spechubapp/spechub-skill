@@ -99,7 +99,7 @@ All scripts accept `--instance <name>` to target a specific instance:
 ```bash
 ./scripts/create-epic.js spechub "Checkout Redesign" "Overhaul the checkout flow"
 ./scripts/create-feature.js spechub "User Authentication"
-./scripts/create-requirement.js spechub <feature-uuid> "The system shall..." --type Functional
+./scripts/create-requirement.js spechub <feature-uuid> "The application displays a login form." --formulation simple --type Functional
 ./scripts/create-entity.js spechub <feature-uuid> "Order" --status Untested
 ```
 
@@ -111,7 +111,7 @@ All scripts accept `--instance <name>` to target a specific instance:
 ./scripts/update-entity.js spechub 1.1 --entity-name "Customer"
 
 # Or by UUID
-./scripts/update-requirement.js spechub <uuid> --description "Updated description"
+./scripts/update-requirement.js spechub <uuid> --description "The application displays a sign-in form." --formulation simple
 ```
 
 ### Delete Resources (⚠️ permanent)

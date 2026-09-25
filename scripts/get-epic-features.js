@@ -24,6 +24,7 @@ cli.run(async () => {
   features.forEach((f, i) => {
     console.log(`${i + 1}. ${f.name}`);
     console.log(`   ID:   ${f.id}`);
+    cli.printWebUrl(f, "   ");
     console.log(`   Ref:  ${f.ref}`);
     if (f.description) console.log(`   Description: ${f.description}`);
     console.log();

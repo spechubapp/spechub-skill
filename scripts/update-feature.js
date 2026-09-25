@@ -37,4 +37,5 @@ cli.run(async () => {
   console.log(`  Name: ${feature.name}`);
   console.log(`  ID:   ${feature.id}`);
   if (feature.description) console.log(`  Description: ${feature.description}`);
+  cli.printWebUrl(feature);
 });

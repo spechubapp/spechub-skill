@@ -15,6 +15,7 @@ cli.run(async () => {
   orgs.forEach((org, i) => {
     console.log(`${i + 1}. ${org.name}`);
     console.log(`   ID:          ${org.id}`);
+    cli.printWebUrl(org, "   ");
     console.log(`   Slug:        ${org.slug}`);
     if (org.description) console.log(`   Description: ${org.description}`);
     console.log();

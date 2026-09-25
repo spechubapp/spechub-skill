@@ -55,6 +55,7 @@ cli.run(async () => {
       );
     }
     console.log(`   ID: ${entity.id}`);
+    cli.printWebUrl(entity, "   ");
     console.log();
   });
 

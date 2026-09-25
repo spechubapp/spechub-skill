@@ -26,6 +26,7 @@ cli.run(async () => {
   epics.forEach((e, i) => {
     console.log(`${i + 1}. ${e.name}`);
     console.log(`   ID: ${e.id}`);
+    cli.printWebUrl(e, "   ");
     if (e.description) {
       const desc = e.description.substring(0, 100);
       console.log(`   ${desc}${e.description.length > 100 ? "..." : ""}`);

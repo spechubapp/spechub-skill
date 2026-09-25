@@ -37,4 +37,5 @@ cli.run(async () => {
   console.log(`  Name: ${epic.name}`);
   console.log(`  ID:   ${epic.id}`);
   if (epic.description) console.log(`  Description: ${epic.description}`);
+  cli.printWebUrl(epic);
 });

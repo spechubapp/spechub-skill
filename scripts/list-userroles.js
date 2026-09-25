@@ -23,6 +23,7 @@ cli.run(async () => {
   roles.forEach((r, i) => {
     console.log(`${i + 1}. ${r.name}`);
     console.log(`   ID: ${r.id}`);
+    cli.printWebUrl(r, "   ");
     if (r.description) console.log(`   ${r.description}`);
     console.log();
   });

@@ -15,6 +15,7 @@ cli.run(async () => {
   projects.forEach((p, i) => {
     console.log(`${i + 1}. ${p.name} (${p.slug})`);
     console.log(`   ID: ${p.id}`);
+    cli.printWebUrl(p, "   ");
     if (p.updatedAt)
       console.log(`   Updated: ${new Date(p.updatedAt).toLocaleDateString()}`);
     console.log("");

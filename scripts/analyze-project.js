@@ -19,6 +19,7 @@ cli.run(async () => {
 
   console.log(`\n=== Project Analysis: ${project.name} ===\n`);
   console.log(`ID:      ${project.id}`);
+  cli.printWebUrl(project, "");
   console.log(`Slug:    ${project.slug}`);
   if (project.updatedAt)
     console.log(`Updated: ${new Date(project.updatedAt).toLocaleString()}`);

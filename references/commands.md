@@ -71,17 +71,18 @@ with `check-auth.js`; use `diagnose.js` for connection problems.
   # Get full details of a requirement by ref (e.g. "133.8") or UUID
 
 ./scripts/create-requirement.js <project-slug> <feature-uuid> <description> [options]
-  Options: --type Functional|Design|Performance
+  Options: --formulation simple|user-role-capability|event-triggered|constraint|state-based
+           --type Functional|Design|Performance
            --status Untested|Passing|Failing|Deprecated
            --release <uuid>, --secondary-feature <uuid>
            --source, --notes, --business-critical true|false
 
 ./scripts/update-requirement.js <project-slug> <requirement-ref-or-uuid> [options]
-  Options: --description, --type, --status, --feature <uuid>, --release <uuid>,
+  Options: --description (requires --formulation), --type, --status, --feature <uuid>, --release <uuid>,
            --secondary-feature <uuid>, --source, --notes,
            --acceptance-criteria, --business-critical true|false
 
-./scripts/get-requirement-improvements.js <project-slug> <requirement-uuid> [<requirement-uuid> ...]
+./scripts/get-requirement-improvements.js <project-slug> <requirement-uuid> [<requirement-uuid> ...] --release-number <name-or-slug>
 
 ./scripts/delete-requirement.js <project-slug> <requirement-ref-or-uuid>
 ```
