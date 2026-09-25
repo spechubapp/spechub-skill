@@ -15,6 +15,19 @@ Run from the skill directory. Positional arguments come first; `--instance
 ./scripts/diagnose.js         # connection + auth diagnostics
 ```
 
+## Repository links
+
+```bash
+./scripts/show-link.js <repo-path>        # nearest .spechub.json, matching instance, verified project
+./scripts/link-project.js <repo-path> <project> [--force]
+```
+
+`link-project.js` records the resolved instance's URL, so pass `--instance` to
+link against a non-default instance. `lib/project-link.js` exports `find`,
+`load`, `read`, `validate`, and `write`; `instances.getConfigForUrl(url)`
+selects the instance for a link's `apiUrl` (`--instance` or `SPECHUB_INSTANCE`
+wins, with `urlMismatch: true` when the URLs differ).
+
 ## Projects, epics, features, releases, user roles
 
 ```bash

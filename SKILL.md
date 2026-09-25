@@ -4,7 +4,7 @@ description: >
   Browse, analyze, and manage SpecHub projects, epics, features, requirements,
   entities, releases, and user roles across named instances. Use for tasks
   involving SpecHub (go.spechub.app) data, or code changes in a repository
-  already linked to SpecHub requirements.
+  linked to a SpecHub project by a `.spechub.json` file.
 license: MIT
 ---
 
@@ -74,13 +74,28 @@ place.
 move overflow to the start of `notes` via `cli.splitDescription()`; direct API
 callers must do the same. Show the resulting body in the write confirmation.
 
-**Linked repositories.** In a repository linked to SpecHub, inspect the changed
-code and nearby requirement references. After a code change, compare the new
-behavior with the project's requirements and proactively suggest additions or
-updates under the rules above. After accepted writes, add the refs near the
-implementing code using the repository's convention, without restating the
-code. Include known refs in commit messages (e.g. `Refs: 1.23, 2.4`); never
-invent refs or block a commit when none applies.
+## Linked repositories
+
+A repository is linked when a committed `.spechub.json` exists at or above the
+working directory; the nearest one wins, so monorepo packages can link
+different projects. It holds `version`, `apiUrl`, and `projectId`, and never
+credentials. At the start of work in a repository, run
+`./scripts/show-link.js <repo-path>` to find and verify the link. It prints the
+project's current name, slug, and UUID and the local instance whose URL matches
+`apiUrl`. Use that project for all project-scoped work and pass `--instance` to
+every script; ask before using another project. Report an unmatched instance or
+a project the instance cannot see rather than guessing. Link a repository with
+`./scripts/link-project.js` only when the user asks. Writing the file is a local
+change, not a data write.
+
+In a linked repository, inspect the changed code and nearby requirement
+references. After a code change, compare the new behavior with the project's
+requirements and proactively suggest additions or updates under the rules
+above. After accepted writes, add the refs near the implementing code in a
+comment, each prefixed with `REQ` (e.g. `// REQ 1.23, REQ 2.4`), without
+restating the code. Include known refs in commit messages the same way (e.g.
+`Refs: REQ 1.23, REQ 2.4`); never invent refs or block a commit when none
+applies.
 
 ## Reads and identifiers
 
