@@ -40,7 +40,9 @@ cli.run(async () => {
   Object.assign(body, { projectId: project.id, featureId, entityName });
 
   const res = await client.post("/api/v1/entity", body);
-  const entity = res.data.data;
+  // The create response may report feature ref 0; re-read for the stored ref.
+  const entity = (await client.get(`/api/v1/entity/${res.data.data.id}`)).data
+    .data;
 
   console.log(`\nEntity created successfully!\n`);
   console.log(`  Ref:         ${entity.fullyQualifiedRef}`);

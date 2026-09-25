@@ -54,7 +54,9 @@ cli.run(async () => {
   });
 
   const res = await client.post("/api/v1/requirement", body);
-  const req = res.data.data;
+  // The create response reports feature ref 0; re-read for the stored ref.
+  const req = (await client.get(`/api/v1/requirement/${res.data.data.id}`)).data
+    .data;
 
   console.log(`\nRequirement created successfully!\n`);
   console.log(`  Ref:  ${req.fullyQualifiedRef}`);

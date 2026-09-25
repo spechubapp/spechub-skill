@@ -49,7 +49,10 @@ List items are lighter than detail responses. Detail may include `notes`,
 `source`, `acceptanceCriteria`, `created`, `updated`, and `webUrl`.
 Entity detail includes `fields`. Requirements/entities expose
 `fullyQualifiedRef`, `businessCritical`, and `automatedTestCoverageType`
-(`Untested`, `Tested`, `Needs a test`); features use integer `ref`.
+(OpenAPI lists `Untested`, `Tested`, `Needs a test`; responses also return
+`No automated test`); features use integer `ref`. Create responses report the
+feature part of `fullyQualifiedRef` and `webUrl` as `0`; re-read the detail
+for the stored values.
 
 ## Create and update bodies
 
