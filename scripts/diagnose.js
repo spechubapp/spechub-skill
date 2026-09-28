@@ -4,11 +4,7 @@
  * Usage: ./diagnose.js [--instance <name>]
  */
 const cli = require("../lib/cli");
-const path = require("path");
-const fs = require("fs");
 const instances = require("../lib/instances");
-
-const INSTANCES_PATH = path.join(__dirname, "..", "instances.json");
 
 async function main() {
   console.log("=== SpecHub Skill Diagnostics ===\n");
@@ -24,19 +20,14 @@ async function main() {
       const marker = name === defaultName ? " (default)" : "";
       console.log(`  ✓ ${name}${marker} — ${inst.url}`);
     }
-  } else if (fs.existsSync(path.join(__dirname, "..", ".env"))) {
-    console.log("✓ No instances.json — falling back to .env");
-    const pat = process.env.SPECHUB_PAT;
+  } else if (process.env.SPECHUB_PAT) {
+    // cli.js has already loaded .env into process.env.
     const url = process.env.SPECHUB_API_URL || "https://api.spechub.app";
-    if (pat) {
-      console.log(`  URL: ${url}`);
-      console.log(`  PAT: ${pat.substring(0, 8)}...`);
-    } else {
-      console.log("  ✗ SPECHUB_PAT not set in .env");
-      process.exit(1);
-    }
+    console.log("✓ No instances configured — using SPECHUB_PAT");
+    console.log(`  URL: ${url}`);
+    console.log(`  PAT: ...${process.env.SPECHUB_PAT.slice(-4)}`);
   } else {
-    console.log("✗ No instances configured and no .env found.");
+    console.log("✗ No instances configured and SPECHUB_PAT is not set.");
     console.log("  Run ./scripts/add-instance.js to set up an instance.");
     process.exit(1);
   }

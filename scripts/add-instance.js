@@ -3,11 +3,12 @@
  * Add or update a named SpecHub instance.
  *
  * Usage:
- *   ./add-instance.js                              # interactive
- *   ./add-instance.js <name> --url <url> --pat <token>
- *   ./add-instance.js <name> --url <url> --pat <token> --default
+ *   ./add-instance.js                              # interactive; the PAT is not echoed
+ *   ./add-instance.js <name> --url <url> --pat-stdin [--default] < token-file
+ *
+ * --pat <token> is still accepted but exposes the token in shell history and
+ * the process list.
  */
-const path = require("path");
 const readline = require("readline");
 const instances = require("../lib/instances");
 
@@ -17,8 +18,8 @@ const name = args[0] && !args[0].startsWith("--") ? args[0] : null;
 function parseFlags(argv) {
   const result = {};
   for (let i = 0; i < argv.length; i++) {
-    if (argv[i] === "--default") {
-      result.default = true;
+    if (argv[i] === "--default" || argv[i] === "--pat-stdin") {
+      result[argv[i].slice(2)] = true;
       continue;
     }
     if (argv[i].startsWith("--") && argv[i + 1]) {
@@ -32,6 +33,25 @@ function ask(rl, question) {
   return new Promise((resolve) =>
     rl.question(question, (answer) => resolve(answer.trim())),
   );
+}
+
+// Like ask(), but does not echo what is typed.
+function askHidden(rl, question) {
+  return new Promise((resolve) => {
+    const write = rl._writeToOutput;
+    rl.question(question, (answer) => {
+      rl._writeToOutput = write;
+      rl.output.write("\n");
+      resolve(answer.trim());
+    });
+    rl._writeToOutput = () => {};
+  });
+}
+
+async function readStdin() {
+  const chunks = [];
+  for await (const chunk of process.stdin) chunks.push(chunk);
+  return Buffer.concat(chunks).toString("utf8").trim();
 }
 
 async function interactive() {
@@ -54,7 +74,7 @@ async function interactive() {
   const url = await ask(rl, `API URL [https://api.spechub.app]: `);
   const resolvedUrl = url || "https://api.spechub.app";
 
-  const pat = await ask(rl, "Personal access token: ");
+  const pat = await askHidden(rl, "Personal access token (hidden): ");
   if (!pat) {
     console.error("PAT is required.");
     process.exit(1);
@@ -77,12 +97,17 @@ async function interactive() {
 
 async function nonInteractive(instanceName, flags) {
   const url = flags.url || "https://api.spechub.app";
-  const pat = flags.pat;
+  if (typeof flags.pat === "string") {
+    console.error(
+      "Warning: --pat exposes the token in shell history and the process list; prefer --pat-stdin or the interactive prompt.",
+    );
+  }
+  const pat = flags["pat-stdin"] ? await readStdin() : flags.pat;
 
   if (!pat) {
-    console.error("Error: --pat is required.");
+    console.error("Error: no PAT provided.");
     console.error(
-      "Usage: ./add-instance.js <name> --url <url> --pat <token> [--default]",
+      "Usage: ./add-instance.js <name> --url <url> --pat-stdin [--default] < token-file",
     );
     process.exit(1);
   }
@@ -96,7 +121,7 @@ async function nonInteractive(instanceName, flags) {
 async function main() {
   const flags = parseFlags(args.slice(name ? 1 : 0));
 
-  if (name && flags.pat) {
+  if (name && (flags.pat || flags["pat-stdin"])) {
     await nonInteractive(name, flags);
   } else {
     await interactive();

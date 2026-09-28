@@ -1,7 +1,11 @@
 {
   "name": "spechub-skill",
   "version": "1.0.0",
+  "private": true,
   "description": "SpecHub agent skill: scripts and helpers for the SpecHub REST API",
+  "engines": {
+    "node": ">=18"
+  },
   "scripts": {
     "setup": "node scripts/add-instance.js",
     "test": "node scripts/diagnose.js"
@@ -16,6 +20,6 @@
     "requirements",
     "documentation"
   ],
-  "author": "",
+  "author": "SpecHub <hello@spechub.app>",
   "license": "MIT"
 }

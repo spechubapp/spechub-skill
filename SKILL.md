@@ -123,6 +123,8 @@ directory (`npm install` first if needed). Every script accepts
 `--instance <name>`; otherwise the instance comes from `SPECHUB_INSTANCE`, the
 default in `instances.json`, then `SPECHUB_PAT` / `SPECHUB_API_URL`. PATs are
 stored in plaintext in gitignored `instances.json`; never expose or commit them.
+Never ask for a PAT in the conversation or pass one with `--pat`; ask the user
+to run `./scripts/add-instance.js` in their own terminal.
 
 Read only the reference the task needs:
 

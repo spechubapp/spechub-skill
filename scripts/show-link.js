@@ -38,7 +38,7 @@ const { file, link } = found;
 const config = instances.getConfigForUrl(link.apiUrl);
 if (!config)
   cli.abort(
-    `no configured instance uses ${link.apiUrl}; add one with ./scripts/add-instance.js <name> --url ${link.apiUrl} --pat <token>`,
+    `no configured instance uses ${link.apiUrl}; ask the user to add one by running ./scripts/add-instance.js with API URL ${link.apiUrl}`,
   );
 
 cli.run(async () => {

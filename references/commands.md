@@ -7,7 +7,8 @@ Run from the skill directory. Positional arguments come first; `--instance
 ## Setup and instances
 
 ```bash
-./scripts/add-instance.js [name] [--url <url>] [--pat <token>] [--default]  # interactive without args
+./scripts/add-instance.js                                           # interactive; PAT is hidden
+./scripts/add-instance.js <name> --url <url> --pat-stdin [--default] < token-file
 ./scripts/list-instances.js
 ./scripts/use-instance.js <name>
 ./scripts/remove-instance.js <name>

@@ -1,1 +1,3 @@
 instances.json
+.env
+node_modules/

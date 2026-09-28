@@ -18,7 +18,7 @@ console.log("\nConfigured SpecHub instances:\n");
 for (const name of names) {
   const inst = all[name];
   const marker = name === defaultName ? " (default)" : "";
-  const patHint = inst.pat ? inst.pat.substring(0, 8) + "..." : "(not set)";
+  const patHint = inst.pat ? "..." + inst.pat.slice(-4) : "(not set)";
   console.log(`  ${name}${marker}`);
   console.log(`    URL: ${inst.url}`);
   console.log(`    PAT: ${patHint}`);
