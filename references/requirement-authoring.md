@@ -71,6 +71,25 @@ top-seller badge next to their avatar.
 Use this type for conditional visibility, appearance, and ongoing behavior.
 Specify the condition itself rather than a passive page-view trigger.
 
+## Purpose
+
+Every requirement must add real value in defining the product. Before
+drafting one, state why the product needs it: the user need, business rule,
+risk, or decision it serves. If there is no concrete reason, or another
+requirement already covers it, do not propose it.
+
+Put that reason in `source` (`--source` in the scripts) as one or two short
+sentences, and show it with each proposal. Explain why, not what: do not
+restate the description. For example:
+
+> [Constraint] The application prevents authentication for users whose
+> accounts have been blocked.
+> Source: Blocking must cut off access at once to contain compromised or
+> abusive accounts.
+
+When improving a stored requirement, keep its `source` unless the purpose
+changes; propose one if it is empty.
+
 ## Classification and quality
 
 Classify each proposal by its main assertion into exactly one type; split or

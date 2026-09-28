@@ -85,7 +85,8 @@ not just "doesn't match".
 ## Undocumented behavior
 
 - `path:line` (`function`) Implementation does: … No corresponding requirement.
-  Actions: add `[State-based] If …` to feature 4, or remove the behavior.
+  Actions: add `[State-based] If …` (Source: …) to feature 4, or remove the
+  behavior.
 
 ## Other findings
 
@@ -97,8 +98,9 @@ not just "doesn't match".
 Keep Passing entries to one line each. Offer every plausible action without
 choosing between them; the user decides whether the code or the requirement is
 right. Draft proposed requirements per
-[requirement authoring](requirement-authoring.md), with a formulation label;
-ask for their release only when the user chooses to add them. The report goes in the conversation; for a long report, offer to save it to a
+[requirement authoring](requirement-authoring.md), with a formulation label
+and source, only for behavior that serves a product purpose; ask for their
+release only when the user chooses to add them. The report goes in the conversation; for a long report, offer to save it to a
 file.
 
 ## Follow-up

@@ -51,9 +51,9 @@ release UUIDs in project context, it has no IDs, statuses, refs, or timestamps.
 
 **Authoring.** Before drafting, reviewing, or improving any requirement, read
 [requirement authoring](references/requirement-authoring.md) and label each
-proposal with its formulation type. The create and description-update scripts
-require `--formulation` and check only sentence structure; judge meaning and
-testability yourself.
+proposal with its formulation type and source. The create and
+description-update scripts require `--formulation` and check only sentence
+structure; judge meaning and testability yourself.
 
 **Releases.** Before suggesting or creating a requirement, list the releases
 from project context (no separate request) and ask which release number to use;
