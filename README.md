@@ -8,7 +8,8 @@ your agent can:
 - Query a SpecHub project
 - Draft specs for new or existing projects, implement them, and keep the code
   aligned with the spec
-- Review a spec's quality and check the implementation against it
+- Review a spec's quality, find requirements that contradict each other, and
+  check the implementation against the spec
 
 ## Install
 
@@ -71,6 +72,8 @@ comments illustrate the convention but cannot be opened publicly.
 - [API](references/api.md): endpoints, bodies, filters, and errors.
 - [Requirement authoring](references/requirement-authoring.md): formulation
   types and quality rules.
+- [Consistency](references/consistency.md): check a project's requirements
+  against each other.
 - [Reconciliation](references/reconciliation.md): check a linked repository
   against its requirements.
 
