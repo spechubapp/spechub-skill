@@ -3,9 +3,10 @@ name: spechub
 description: >
   Browse, analyze, and manage SpecHub projects, epics, features, requirements,
   entities, releases, and user roles across named instances. Use for tasks
-  involving SpecHub (go.spechub.app) data, code changes in a repository
-  linked to a SpecHub project by a `.spechub.json` file, or reconciling such a
-  repository's implementation against its requirements.
+  involving SpecHub (go.spechub.app) data, checking a project's requirements
+  for contradictions, code changes in a repository linked to a SpecHub project
+  by a `.spechub.json` file, or reconciling such a repository's implementation
+  against its requirements.
 license: MIT
 ---
 
@@ -74,6 +75,11 @@ place.
 **Length.** `description` is limited to 300 characters. The requirement scripts
 move overflow to the start of `notes` via `cli.splitDescription()`; direct API
 callers must do the same. Show the resulting body in the write confirmation.
+
+**Consistency.** To check a project's requirements against each other and
+against its roles, entities, and releases (contradictions, duplicates, or a
+review of the spec as a whole), follow
+[consistency](references/consistency.md).
 
 ## Linked repositories
 

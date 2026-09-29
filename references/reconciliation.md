@@ -45,6 +45,11 @@ Do not skip requirements because they seem minor or obvious. When the
 requirement and the code disagree, report the discrepancy as-is; do not guess
 which one is correct or reinterpret the requirement to fit the code.
 
+When requirements in scope contradict each other, classify each against the
+code on its own terms and report the contradiction under Other findings. To
+check requirements against each other systematically, follow
+[consistency](consistency.md).
+
 ## Find undocumented behavior
 
 List implemented, observable behavior with no corresponding requirement:
@@ -93,6 +98,7 @@ not just "doesn't match".
 - `REQ` comments citing unknown or deprecated refs.
 - SpecHub `status` that contradicts a finding, such as `Passing` on an
   Inconsistent or Missing requirement.
+- Requirements that contradict each other, so the code cannot satisfy both.
 ```
 
 Keep Passing entries to one line each. Offer every plausible action without
