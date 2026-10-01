@@ -83,9 +83,8 @@ context:
 - Roles it names that the project does not define.
 - Entities, fields, or options it names that do not exist, and assumptions
   that a field's type, required flag, options, default, or validations
-  contradict. Context has no entity IDs and may omit field details: find the
-  entity's ref with `./scripts/get-entities.js <project>` and read
-  `./scripts/get-entity.js <project> <ref>`, or `GET /api/v1/entity/{id}` for
+  contradict. Context gives entity UUIDs and field names and types only: read
+  `./scripts/get-entity.js <project> <uuid>`, or `GET /api/v1/entity/{id}` for
   options, defaults, and validations, which the script does not print.
 - Entities it depends on that are assigned only to a later release.
 

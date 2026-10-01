@@ -45,8 +45,12 @@ Context endpoints are `GET /api/v1/<resource>/context` and return Markdown:
 | Feature  | `featureId` | Feature and its requirement descriptions                    |
 | Release  | `releaseId` | Release, its features, and their requirements               |
 
-Use `cli.getContext()` / `cli.printContext()`. Context is prose: apart from
-release UUIDs in project context, it has no IDs, statuses, refs, or timestamps.
+Use `cli.getContext()` / `cli.printContext()`. Context gives each listed item's
+name and UUID (project, roles, entities, entity fields, epics, features,
+releases, and requirements), usable directly in API calls, but no statuses,
+refs, `webUrl`s, or timestamps. Project context omits deprecated entities, epic
+and feature context omit deprecated requirements, and release context includes
+them.
 
 ## Requirements
 
