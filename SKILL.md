@@ -38,19 +38,20 @@ for what it lacks.
 
 Context endpoints are `GET /api/v1/<resource>/context` and return Markdown:
 
-| Resource | Parameter   | Contents                                                    |
-| -------- | ----------- | ----------------------------------------------------------- |
-| Project  | `projectId` | Description, roles, entities and fields, features, releases |
-| Epic     | `epicId`    | Epic, its features, and their requirements                  |
-| Feature  | `featureId` | Feature and its requirement descriptions                    |
-| Release  | `releaseId` | Release, its features, and their requirements               |
+| Resource | Parameter   | Contents                                                                  |
+| -------- | ----------- | ------------------------------------------------------------------------- |
+| Project  | `projectId` | Description, brief, roles, entities and fields, features, epics, releases |
+| Epic     | `epicId`    | Epic, its features, and their requirements                                |
+| Feature  | `featureId` | Feature and its requirement descriptions                                  |
+| Release  | `releaseId` | Release, its features, and their requirements                             |
 
 Use `cli.getContext()` / `cli.printContext()`. Context gives each listed item's
 name and UUID (project, roles, entities, entity fields, epics, features,
-releases, and requirements), usable directly in API calls, but no statuses,
-refs, `webUrl`s, or timestamps. Project context omits deprecated entities, epic
-and feature context omit deprecated requirements, and release context includes
-them.
+releases, and requirements), usable directly in API calls. Project context
+also gives feature refs and epic and release slugs; context has no requirement
+refs, statuses, `webUrl`s, or timestamps. Project context omits deprecated
+entities, epic and feature context omit deprecated requirements, and release
+context includes them.
 
 ## Requirements
 
@@ -72,9 +73,10 @@ answers, and include the release number with each.
 side with the ref and `webUrl` link, and apply only after acceptance. Before
 changing meaning, scope, type, acceptance criteria, or feature, check the
 current release. If it is shipped, create a replacement in an unshipped release
-and mark the old requirement `Deprecated`; otherwise edit in place, or delete if
-the user wants it removed. Status and test-result updates may always be made in
-place.
+and mark the old requirement `Deprecated` with the new one as its replacement
+(`replacementRequirementId`)<!-- REQ 16.4 -->; otherwise edit in place, or delete if the user
+wants it removed. Status, test coverage (`automatedTestCoverageType`), and
+replacement updates may always be made in place.
 
 **Length.** `description` is limited to 300 characters. The requirement scripts
 move overflow to the start of `notes` via `cli.splitDescription()`; direct API
@@ -102,7 +104,8 @@ change, not a data write.
 In a linked repository, inspect the changed code and nearby requirement
 references. After a code change, compare the new behavior with the project's
 requirements and proactively suggest additions or updates under the rules
-above. After accepted writes, add the refs near the implementing code in a
+above, including test coverage when tests for a requirement are added or
+removed<!-- REQ 6.6 -->. After accepted writes, add the refs near the implementing code in a
 comment, each prefixed with `REQ` (e.g. `// REQ 1.23, REQ 2.4`), without
 restating the code. Include known refs in commit messages the same way (e.g.
 `Refs: REQ 1.23, REQ 2.4`); never invent refs or block a commit when none
@@ -122,9 +125,12 @@ reconciliation, audit, or spec-versus-code review), follow
 - Prefer context for overviews and server-side filters (e.g. `refs=1.23,2.45`)
   for structured reads; avoid whole-project fetches and per-item detail loops.
   Run independent reads concurrently; use `fetchAll()` for complete lists.
-- List items omit notes, source, acceptance criteria, and entity fields; fetch
-  detail when needed. Deprecated requirements/entities are excluded unless
-  `includeDeprecated=true`.
+- List items omit notes, source, acceptance criteria, replacements, and entity
+  fields; fetch detail when needed. Deprecated requirements/entities are
+  excluded unless `includeDeprecated=true`.
+- Epics, features, and requirements carry external references: documentation,
+  test, implementation, and other links, plus SpecHub-managed Figma and
+  replacement links. Read them only when a task needs them.
 
 ## Setup and execution
 

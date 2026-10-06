@@ -67,7 +67,7 @@ wins, with `urlMismatch: true` when the URLs differ).
 ./scripts/get-entity.js <project> <ref-or-uuid>
 
 ./scripts/create-requirement.js <project> <feature-uuid> <description> --formulation <type> [--type] [item flags]
-./scripts/update-requirement.js <project> <ref-or-uuid> [--description <text> --formulation <type>] [--type] [--feature <uuid>] [item flags]
+./scripts/update-requirement.js <project> <ref-or-uuid> [--description <text> --formulation <type>] [--type] [--feature <uuid>] [--replacement <ref-or-uuid>|none] [item flags]
 ./scripts/create-entity.js <project> <feature-uuid> <entity-name> [item flags]
 ./scripts/update-entity.js <project> <ref-or-uuid> [--entity-name] [--feature <uuid>] [item flags]
   # --formulation: simple | user-role-capability | event-triggered | constraint | state-based
@@ -75,6 +75,9 @@ wins, with `urlMismatch: true` when the URLs differ).
   # item flags: --status Untested|Passing|Failing|Deprecated, --release <uuid>,
   #   --secondary-feature <uuid>, --source, --notes, --business-critical true|false,
   #   --acceptance-criteria (update only)
+  # requirement only: --test-coverage "No automated test"|"Has automated test"|"Needs automated test"
+  # --replacement: the requirement replacing a Deprecated one (set with or after
+  #   --status Deprecated); none removes it
 
 ./scripts/get-requirement-improvements.js <project> <ref-or-uuid>... --release-number <name|none>
 ./scripts/set-entity-fields.js <project> <ref-or-uuid> --fields <file.json>       # body: api.md
@@ -84,7 +87,20 @@ wins, with `urlMismatch: true` when the URLs differ).
 ```
 
 `update-requirement.js` refuses content changes to requirements in shipped
-releases.
+releases; status, test coverage, and replacement changes are allowed.
+
+## External references
+
+```bash
+./scripts/list-references.js <epic|feature> <uuid>
+./scripts/list-references.js requirement [<project>] <ref-or-uuid>    # project needed for a ref
+./scripts/add-reference.js <parent> --name <text> --url <url> --type <type> [--notes <text>]
+  # <parent> as for list-references.js; --type: Documentation | Test | Implementation | Other
+./scripts/update-reference.js <reference-uuid> [--name] [--url] [--type] [--notes]
+./scripts/delete-reference.js <reference-uuid>
+```
+
+`list-references.js` prints each reference's UUID for update and delete.
 
 ## Direct API usage
 
@@ -121,6 +137,8 @@ to `createClient()`; resolve each instance's identifiers with its own client.
 | `resolveProjectSlug(client, slugOrId)`                                         | Project from a per-process cached list                          |
 | `resolveRequirement` / `resolveEntity(client, projectId, refOrId, { detail })` | UUID → detail; ref → list item, or detail with `detail: true`   |
 | `abortIfShipped(client, requirement, advice)`                                  | Exit if the requirement's release is shipped                    |
+| `resolveReferenceParent(client, positionals)`                                  | `{ kind, id, label }` of an epic, feature, or requirement       |
+| `printReference(reference, indent?)`                                           | Print an external reference                                     |
 | `splitDescription(description, existingNotes)`                                 | `{ description, notes }` within the 300-character limit         |
 | `validateRequirementFormulation(description, formulation)`                     | Exit unless the description matches the formulation's structure |
 | `parseFlags(args, start)` / `positionals(args)` / `bool(value)`                | Argument parsing                                                |

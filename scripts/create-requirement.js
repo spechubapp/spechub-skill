@@ -12,6 +12,7 @@
  *   --source <text>
  *   --notes <text>
  *   --business-critical true|false
+ *   --test-coverage "No automated test"|"Has automated test"|"Needs automated test"
  */
 const cli = require("../lib/cli");
 
@@ -21,7 +22,8 @@ const [slug, featureId, description] = cli.positionals(args);
 if (!slug || !featureId || !description) {
   cli.usage(
     "Usage: ./create-requirement.js <project-slug> <feature-uuid> <description> [options]",
-    "Options: --formulation <type>, --type, --status, --release <uuid>, --secondary-feature <uuid>, --source, --notes, --business-critical true|false",
+    "Options: --formulation <type>, --type, --status, --release <uuid>, --secondary-feature <uuid>, --source, --notes, --business-critical true|false,",
+    "         --test-coverage <type>",
     'Example: ./create-requirement.js spechub abc-123 "The application displays a login form." --formulation simple --status Untested',
   );
 }
@@ -40,6 +42,7 @@ cli.run(async () => {
     source: "source",
     notes: "notes",
     "business-critical": { key: "businessCritical", transform: cli.bool },
+    "test-coverage": "automatedTestCoverageType", // REQ 10.8
   });
 
   // Handle description length limit (300 chars)
@@ -54,9 +57,7 @@ cli.run(async () => {
   });
 
   const res = await client.post("/api/v1/requirement", body);
-  // The create response reports feature ref 0; re-read for the stored ref.
-  const req = (await client.get(`/api/v1/requirement/${res.data.data.id}`)).data
-    .data;
+  const req = res.data.data;
 
   console.log(`\nRequirement created successfully!\n`);
   console.log(`  Ref:  ${req.fullyQualifiedRef}`);

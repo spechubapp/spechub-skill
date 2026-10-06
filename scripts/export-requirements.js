@@ -76,6 +76,12 @@ function renderRequirement(r, releases) {
     "",
     r.description,
   ];
+  // REQ 8.9
+  if (r.replacement)
+    lines.push(
+      "",
+      `Replaced by: ${link(r.replacement.name, r.replacement.url)}`,
+    );
   if (r.notes) lines.push("", "Notes:", "", r.notes);
   if (r.acceptanceCriteria?.length) {
     lines.push("", "Acceptance criteria:", "");

@@ -154,7 +154,8 @@ shipped release is replaced and deprecated rather than edited.
 ## Duplicates
 
 - [REQ 4.1](url) and [REQ 9.3](url) both require …; only REQ 9.3 states …
-  Actions: delete or deprecate one, or narrow REQ 4.1 to …
+  Actions: delete one, deprecate one with the other as its replacement, or
+  narrow REQ 4.1 to …
 
 ## Mismatches
 

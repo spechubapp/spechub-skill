@@ -50,6 +50,13 @@ cli.run(async () => {
     console.log(`Secondary Feature: ${requirement.secondaryFeatureId}`);
   }
 
+  // REQ 8.9
+  if (requirement.replacement) {
+    console.log(
+      `Replaced by: ${requirement.replacement.name} (${requirement.replacement.url})`,
+    );
+  }
+
   if (requirement.source) {
     console.log(`Source:      ${requirement.source}`);
   }

@@ -95,9 +95,11 @@ not just "doesn't match".
 
 ## Other findings
 
-- `REQ` comments citing unknown or deprecated refs.
+- `REQ` comments citing unknown or deprecated refs, with the replacement of a
+  deprecated ref when it has one.
 - SpecHub `status` that contradicts a finding, such as `Passing` on an
-  Inconsistent or Missing requirement.
+  Inconsistent or Missing requirement, and test coverage that contradicts the
+  tests found, such as `No automated test` on a requirement a test covers.
 - Requirements that contradict each other, so the code cannot satisfy both.
 ```
 

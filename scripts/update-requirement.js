@@ -15,6 +15,8 @@
  *   --notes <text>
  *   --acceptance-criteria <text>
  *   --business-critical true|false
+ *   --test-coverage "No automated test"|"Has automated test"|"Needs automated test"
+ *   --replacement <ref-or-uuid>|none   (requirement replacing this Deprecated one)
  */
 const cli = require("../lib/cli");
 
@@ -25,8 +27,10 @@ if (!projectSlug || !refOrId) {
   cli.usage(
     "Usage: ./update-requirement.js <project-slug> <requirement-ref-or-uuid> [options]",
     "Options: --description, --formulation <type>, --type, --status, --feature <uuid>, --release <uuid>,",
-    "         --secondary-feature <uuid>, --source, --notes, --acceptance-criteria, --business-critical true|false",
+    "         --secondary-feature <uuid>, --source, --notes, --acceptance-criteria, --business-critical true|false,",
+    "         --test-coverage <type>, --replacement <ref-or-uuid>|none",
     "Example: ./update-requirement.js spechub 1.23 --status Passing",
+    "Example: ./update-requirement.js spechub 1.23 --status Deprecated --replacement 1.31",
   );
 }
 
@@ -48,10 +52,13 @@ cli.run(async () => {
     notes: "notes",
     "acceptance-criteria": "acceptanceCriteria",
     "business-critical": { key: "businessCritical", transform: cli.bool },
+    "test-coverage": "automatedTestCoverageType", // REQ 10.8
   });
 
-  if (Object.keys(body).length === 0)
+  if (Object.keys(body).length === 0 && flags.replacement === undefined)
     cli.abort("provide at least one field to update");
+  if (flags.replacement === true)
+    cli.abort("--replacement needs a requirement ref or UUID, or none");
 
   const client = await cli.createClient();
   const project = await cli.resolveProjectSlug(client, projectSlug);
@@ -64,7 +71,26 @@ cli.run(async () => {
     },
   );
 
-  if (Object.keys(body).some((key) => key !== "status")) {
+  // "none" removes the replacement; a ref or UUID sets it. REQ 10.9
+  if (flags.replacement === "none") {
+    body.replacementRequirementId = null;
+  } else if (flags.replacement !== undefined) {
+    const replacement = await cli.resolveRequirement(
+      client,
+      project.id,
+      flags.replacement,
+    );
+    body.replacementRequirementId = replacement.id;
+  }
+
+  // Status, test coverage, and replacement changes never alter the content.
+  // REQ 10.7
+  const inPlaceKeys = [
+    "status",
+    "automatedTestCoverageType",
+    "replacementRequirementId",
+  ];
+  if (Object.keys(body).some((key) => !inPlaceKeys.includes(key))) {
     await cli.abortIfShipped(
       client,
       requirement,
@@ -88,7 +114,12 @@ cli.run(async () => {
   console.log(`\nRequirement updated successfully!\n`);
   console.log(`  Ref:    ${req.fullyQualifiedRef}`);
   console.log(`  Status: ${req.status}`);
+  console.log(`  Test coverage: ${req.automatedTestCoverageType}`);
   console.log(`  Description: ${req.description}`);
+  if (req.replacement)
+    console.log(
+      `  Replaced by: ${req.replacement.name} (${req.replacement.url})`,
+    );
   if (req.notes)
     console.log(
       `  Notes: ${req.notes.slice(0, 100)}${req.notes.length > 100 ? "..." : ""}`,

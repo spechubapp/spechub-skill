@@ -47,27 +47,28 @@ malformed refs return 400. `includeDeprecated` defaults to false.
 
 List items are lighter than detail responses. Detail may include `notes`,
 `source`, `acceptanceCriteria`, `created`, `updated`, and `webUrl`.
-Entity detail includes `fields`. Requirements/entities expose
-`fullyQualifiedRef`, `businessCritical`, and `automatedTestCoverageType`
-(OpenAPI lists `Untested`, `Tested`, `Needs a test`; responses also return
-`No automated test`); features use integer `ref`. Create responses report the
-feature part of `fullyQualifiedRef` and `webUrl` as `0`; re-read the detail
-for the stored values.
+Entity detail includes `fields`; requirement detail includes `replacement`
+(below). Requirements/entities expose `fullyQualifiedRef`, `businessCritical`,
+and `automatedTestCoverageType`; features use integer `ref`. Projects include
+`url`, an external site or app URL, or null. Requirement create and PATCH
+responses report the stored `fullyQualifiedRef`, including after a feature
+move. Entity create and move responses may report its feature part and
+`webUrl` as `0`; re-read the detail for the stored values.
 
 ## Create and update bodies
 
 For PATCH, send only changed fields and omit the parent ID (`organizationId` /
 `projectId`).
 
-| Resource    | Required on create                      | Optional on create and PATCH                   | PATCH only      |
-| ----------- | --------------------------------------- | ---------------------------------------------- | --------------- |
-| Project     | `organizationId`, `name`, `slug`        | `description`, `brief`                         | —               |
-| Epic        | `projectId`, `name`                     | `description`                                  | `notes`, `slug` |
-| Feature     | `projectId`, `name`                     | `description`, `source`, `notes`               | —               |
-| Requirement | `projectId`, `featureId`, `description` | `requirementType` and shared item fields below | —               |
-| Entity      | `projectId`, `featureId`, `entityName`  | Shared item fields below                       | —               |
-| Release     | `projectId`, `name`                     | `description`, `shipped` (boolean)             | `slug`          |
-| User role   | `projectId`, `name`                     | `description`                                  | —               |
+| Resource    | Required on create                      | Optional on create and PATCH                                                 | PATCH only                 |
+| ----------- | --------------------------------------- | ---------------------------------------------------------------------------- | -------------------------- |
+| Project     | `organizationId`, `name`, `slug`        | `description`, `brief`, `url`                                                | —                          |
+| Epic        | `projectId`, `name`                     | `description`                                                                | `notes`, `slug`            |
+| Feature     | `projectId`, `name`                     | `description`, `source`, `notes`                                             | —                          |
+| Requirement | `projectId`, `featureId`, `description` | `requirementType`, `automatedTestCoverageType`, and shared item fields below | `replacementRequirementId` |
+| Entity      | `projectId`, `featureId`, `entityName`  | Shared item fields below                                                     | —                          |
+| Release     | `projectId`, `name`                     | `description`, `shipped` (boolean)                                           | `slug`                     |
+| User role   | `projectId`, `name`                     | `description`                                                                | —                          |
 
 Shared requirement/entity fields:
 
@@ -77,7 +78,11 @@ Shared requirement/entity fields:
 - `acceptanceCriteria`: array of strings.
 - `businessCritical`: boolean.
 
-`requirementType` is `Functional`, `Design`, or `Performance`. Example:
+`requirementType` is `Functional`, `Design`, or `Performance`.
+`automatedTestCoverageType` is `No automated test` (the default),
+`Has automated test`, or `Needs automated test`; entities cannot set it.
+Project `url` must be an absolute http or https URL; PATCH accepts null or
+`""` to clear it. Example:
 
 ```json
 {
@@ -91,6 +96,63 @@ Shared requirement/entity fields:
   "businessCritical": false
 }
 ```
+
+## Requirement replacements
+
+A `Deprecated` requirement can point at the requirement that replaces it.
+PATCH `replacementRequirementId` with the replacement's UUID, in the same
+request as `"status": "Deprecated"` or later. Null removes the replacement;
+omitting it leaves it unchanged, and changing the status away from
+`Deprecated` keeps it. The replacement must be another requirement in the same
+project; otherwise, or when the requirement is not `Deprecated`, the PATCH
+returns 422 and changes nothing.
+
+Requirement detail then includes `replacement`, omitted when there is none:
+
+```json
+{ "name": "1.31: Users can check out as a guest.", "url": "<webUrl>" }
+```
+
+`name` is the replacement's ref and description when it was set and does not
+follow later edits. The replacement is stored as a `Replacement` external
+reference on the deprecated requirement.
+
+## External references
+
+Epics, features, and requirements carry ordered links to external resources.
+
+| Operation | Method and path                                          |
+| --------- | -------------------------------------------------------- |
+| List      | `GET /api/v1/{epic,feature,requirement}/{id}/reference`  |
+| Add       | `POST /api/v1/{epic,feature,requirement}/{id}/reference` |
+| Update    | `PATCH /api/v1/reference/{referenceId}`                  |
+| Delete    | `DELETE /api/v1/reference/{referenceId}`                 |
+
+Lists are not paginated: `{ "data": [...] }`, ordered by `weight`. Create
+appends; create and update return the reference in `{ data: {...} }`.
+
+```json
+{
+  "name": "Login issue",
+  "url": "https://github.com/myorg/myrepo/issues/42",
+  "type": "Implementation",
+  "notes": "Tracks the implementation work."
+}
+```
+
+`name` (at most 300 characters), a valid `url`, and `type` are required on
+create; PATCH changes only the fields sent. Writable types are
+`Documentation`, `Test`, `Implementation`, and `Other`. SpecHub manages
+`Figma` and `Replacement` references: they appear in lists but cannot be
+created, and other types cannot be changed to them (422). References also
+include `id`, `weight`, `created`, and `updated`.
+
+When the project is connected to a GitHub repository, an issue or pull request
+URL in that repository is enriched on create or URL change with
+`github: { kind: "issue" | "pr", number, title, status, labels, assignees }`;
+enrichment failures do not fail the request. GitHub-enriched and `Replacement`
+references cannot be updated (422) but can be deleted. Deleting a
+`Replacement` reference removes the requirement's replacement.
 
 ## Epic features
 
