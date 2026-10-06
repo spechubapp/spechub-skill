@@ -109,7 +109,9 @@ removed<!-- REQ 6.6 -->. After accepted writes, add the refs near the implementi
 comment, each prefixed with `REQ` (e.g. `// REQ 1.23, REQ 2.4`), without
 restating the code. Include known refs in commit messages the same way (e.g.
 `Refs: REQ 1.23, REQ 2.4`); never invent refs or block a commit when none
-applies.
+applies. Use the `feat` commit type only for work that adds a new feature to
+the SpecHub project; use `change` for work that adds or updates requirements
+in an existing feature<!-- REQ 6.7, REQ 6.8 -->.
 
 To compare a linked repository's implementation with its requirements (a
 reconciliation, audit, or spec-versus-code review), follow
