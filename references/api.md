@@ -48,8 +48,9 @@ malformed refs return 400. `includeDeprecated` defaults to false.
 List items are lighter than detail responses. Detail may include `notes`,
 `source`, `acceptanceCriteria`, `created`, `updated`, and `webUrl`.
 Entity detail includes `fields`; requirement detail includes `replacement`
-(below). Requirements/entities expose `fullyQualifiedRef`, `businessCritical`,
-and `automatedTestCoverageType`; features use integer `ref`. Projects include
+(below). Requirements/entities expose `fullyQualifiedRef` and
+`automatedTestCoverageType`; responses may omit `businessCritical`, and entity
+detail omits `created`. Features use integer `ref`. Projects include
 `url`, an external site or app URL, or null. Requirement create and PATCH
 responses report the stored `fullyQualifiedRef`, including after a feature
 move. Entity create and move responses may report its feature part and

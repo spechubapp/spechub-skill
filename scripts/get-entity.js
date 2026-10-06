@@ -73,9 +73,13 @@ cli.run(async () => {
     });
   }
 
-  console.log(`\nBusiness Critical: ${entity.businessCritical}`);
+  console.log();
+  // Detail responses may omit businessCritical and, for entities, created.
+  if (entity.businessCritical !== undefined) {
+    console.log(`Business Critical: ${entity.businessCritical}`);
+  }
   console.log(`Test Coverage:     ${entity.automatedTestCoverageType}`);
-  console.log(`Created:           ${entity.created}`);
+  if (entity.created) console.log(`Created:           ${entity.created}`);
   console.log(`Updated:           ${entity.updated}`);
   cli.printWebUrl(entity, "");
   console.log();

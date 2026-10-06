@@ -75,7 +75,11 @@ cli.run(async () => {
     });
   }
 
-  console.log(`\nBusiness Critical: ${requirement.businessCritical}`);
+  console.log();
+  // Detail responses may omit businessCritical.
+  if (requirement.businessCritical !== undefined) {
+    console.log(`Business Critical: ${requirement.businessCritical}`);
+  }
   console.log(`Test Coverage:     ${requirement.automatedTestCoverageType}`);
   console.log(`Created:           ${requirement.created}`);
   console.log(`Updated:           ${requirement.updated}`);
