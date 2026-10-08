@@ -185,8 +185,8 @@ pair from a missed one.
 
 Offer every plausible action without choosing between them; the user decides
 which requirement is right. Draft proposed wording per
-[requirement authoring](requirement-authoring.md), with a formulation label
-and source, and change only what the finding requires. Where a draft needs a
+[requirement authoring](requirement-authoring.md), standardized, with a
+formulation label and source, and change only what the finding requires. Where a draft needs a
 decision or a purpose that only the user can supply, such as which role or
 value to use, leave a marked placeholder instead of inventing one. The report
 goes in the conversation; for a long report, offer to save it to a file.

@@ -52,6 +52,19 @@ wins, with `urlMismatch: true` when the URLs differ).
 ./scripts/set-epic-features.js <epic-uuid> <feature-uuid>...   # replaces the full set
 ```
 
+## Resolve and search
+
+```bash
+./scripts/resolve.js <spechub-web-url>     # type, UUID, and project of the object shown there
+./scripts/resolve.js <project> <ref>       # feature (2), requirement, or entity (2.45)
+./scripts/search-project.js <project> <keywords...> [--type <type>] [--sort relevance|last_updated] [--limit <20-500>] [--all]
+  # --type: all | epic | feature | requirement | release | discussion
+```
+
+`search-project.js` prints the matches per type, then each result's ref or
+slug, title, matching snippet with keywords in `**bold**`, `webUrl`, and UUID.
+It prints the first page unless `--all` is given.
+
 ## Requirements and entities
 
 ```bash
@@ -80,6 +93,7 @@ wins, with `urlMismatch: true` when the URLs differ).
   #   --status Deprecated); none removes it
 
 ./scripts/get-requirement-improvements.js <project> <ref-or-uuid>... --release-number <name|none>
+./scripts/standardize-requirements.js <project> <description>...   # 1-20 drafts; writes nothing
 ./scripts/set-entity-fields.js <project> <ref-or-uuid> --fields <file.json>       # body: api.md
 ./scripts/set-entity-fields.js <project> <ref-or-uuid> --delete <field-uuid>[,...]
 ./scripts/delete-requirement.js <project> <ref-or-uuid>   # refuses shipped releases
@@ -139,6 +153,7 @@ to `createClient()`; resolve each instance's identifiers with its own client.
 | `abortIfShipped(client, requirement, advice)`                                  | Exit if the requirement's release is shipped                    |
 | `resolveReferenceParent(client, positionals)`                                  | `{ kind, id, label }` of an epic, feature, or requirement       |
 | `printReference(reference, indent?)`                                           | Print an external reference                                     |
+| `printComparison(leftLabel, left, rightLabel, right)`                          | Print two texts in side-by-side columns                         |
 | `splitDescription(description, existingNotes)`                                 | `{ description, notes }` within the 300-character limit         |
 | `validateRequirementFormulation(description, formulation)`                     | Exit unless the description matches the formulation's structure |
 | `parseFlags(args, start)` / `positionals(args)` / `bool(value)`                | Argument parsing                                                |

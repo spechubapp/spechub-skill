@@ -1,7 +1,7 @@
 # Requirement authoring
 
 Applies to every drafted, reviewed, or improved requirement, including
-improvement-API suggestions. Based on
+improvement- and standardization-API suggestions. Based on
 [SpecHub core concepts](https://spechub.app/docs/core-concepts).
 
 ## Five formulation types
@@ -89,6 +89,24 @@ restate the description. For example:
 
 When improving a stored requirement, keep its `source` unless the purpose
 changes; propose one if it is empty.
+
+## Standardization
+
+<!-- REQ 14.8, REQ 14.9, REQ 14.10, REQ 12.8 -->
+
+Before presenting requirements you drafted or rewrote, including proposals in
+consistency and reconciliation reports, standardize them:
+`./scripts/standardize-requirements.js <project> <draft>...`, at most 20 per
+run. SpecHub rewrites each draft into a formulation type using the project's
+roles, entities, and fields. It changes no data and needs no write
+confirmation.
+
+Present the standardized text, checked as below like any draft. Keep your
+draft instead, and say why, when the rewrite changes its meaning, drops a
+condition or bound, or names a role, entity, or field the project does not
+define. If standardization fails, present your drafts and say they are not
+standardized. Stored requirements and improvement-API suggestions are not
+re-standardized.
 
 ## Classification and quality
 

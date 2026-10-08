@@ -168,6 +168,80 @@ references cannot be updated (422) but can be deleted. Deleting a
 Omitted associations are removed; duplicate IDs are ignored. Nonexistent
 features or features belonging to another project return 422.
 
+## Resolve
+
+`GET /api/v1/resolve` identifies an object from either `url`, a SpecHub web
+URL, or `ref` (`2` for a feature, `2.45` for a requirement or entity) with
+`projectId`. Pass one form, not both, or the request returns 400.
+
+```json
+{
+  "data": {
+    "type": "requirement",
+    "id": "<uuid>",
+    "projectId": "<uuid>",
+    "webUrl": "https://go.spechub.app/acme/checkout/2.45"
+  }
+}
+```
+
+`url` may be absolute, lack the scheme, or be a path alone; query strings and
+fragments are ignored. A sub-page resolves to its object: `.../2.45/notes` to
+requirement 2.45, `.../features` to the project. `type` is `project`, `epic`,
+`feature`, `requirement`, `entity`, `release`, `userRole`, or `reference`
+(external references), naming the endpoints that accept the ID; `webUrl` is
+canonical. An unknown or inaccessible object
+returns 404; an unparseable `url` or `ref` returns 400.
+
+## Project search
+
+`GET /api/v1/project/{projectId}/search` takes a required `searchTerm`,
+`typeFilter` (`all`, the default, `epic`, `feature`, `requirement`, `release`,
+or `discussion`), `sortBy` (`relevance`, the default, or `last_updated`),
+`cursor`, and `limit`. An empty `searchTerm` or invalid filter returns 400.
+
+The response is a paginated list plus
+`meta: { currentTypeFilter, currentSort, typeCounts }`. `typeCounts` gives the
+matches of every type, regardless of `typeFilter`. Each result has `type`,
+`id`, `title`, `relevance` (comparable only within one search), `updated`,
+`webUrl`, and, by type, `ref` (features), `slug` (epics and releases),
+`fullyQualifiedRef` (requirements), or `requirementId` (discussions, whose `id`
+is the comment's).
+
+`title` is the item's name, a requirement's description, or for discussions
+the parent requirement's description. `snippet`, when present, is the first
+matching field among name, description, notes, and discussion body, with
+keywords in `<mark>` tags and other characters HTML-escaped (`&#34;`).
+Entities appear as `requirement` results titled with the entity name.
+Deprecated requirements are included, without their status. Search does not
+match refs; resolve them instead.
+
+## Requirement standardization
+
+`POST /api/v1/project/{projectId}/requirements/standardize` rewrites 1 to 20
+description strings into SpecHub's formulation types, using the project's
+roles, entities, and entity fields. It creates and changes nothing.
+
+```json
+{ "requirements": ["usernames can only have letters and numbers"] }
+```
+
+```json
+{
+  "requirements": [
+    {
+      "original": "usernames can only have letters and numbers",
+      "standardized": "The application prevents User.username values that contain characters other than letters and numbers."
+    }
+  ]
+}
+```
+
+Results keep the input order, including duplicates. An empty or oversized list
+returns 400; an inaccessible project returns 404; if any description fails,
+the request returns 500. Vet results against project context and the
+authoring rules.
+
 ## Requirement improvements
 
 `GET /api/v1/requirement/improve` takes `projectId` and `requirementIds`.

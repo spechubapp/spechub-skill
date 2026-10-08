@@ -25,32 +25,6 @@ if (!slug || requirementRefs.length === 0) {
   );
 }
 
-function wrap(value, width = 58) {
-  const lines = [];
-  for (const paragraph of String(value || "").split("\n")) {
-    let line = "";
-    for (const word of paragraph.split(/\s+/)) {
-      if (line && line.length + word.length + 1 > width) {
-        lines.push(line);
-        line = "";
-      }
-      line += (line ? " " : "") + word;
-    }
-    lines.push(line);
-  }
-  return lines;
-}
-
-function printComparison(current, suggested) {
-  const left = wrap(current);
-  const right = wrap(suggested || "(no suggestion returned)");
-  console.log(`${"Current".padEnd(60)} | Suggested`);
-  console.log(`${"-".repeat(60)}-+-${"-".repeat(60)}`);
-  for (let i = 0; i < Math.max(left.length, right.length); i++) {
-    console.log(`${(left[i] || "").padEnd(60)} | ${right[i] || ""}`);
-  }
-}
-
 cli.run(async () => {
   const client = await cli.createClient();
   const project = await cli.resolveProjectSlug(client, slug);
@@ -88,7 +62,12 @@ cli.run(async () => {
       `Requirement ${requirement.fullyQualifiedRef || requirement.id}`,
     );
     cli.printWebUrl(requirement, "");
-    printComparison(requirement.description, improvements[requirement.id]);
+    cli.printComparison(
+      "Current",
+      requirement.description,
+      "Suggested",
+      improvements[requirement.id] || "(no suggestion returned)",
+    );
     console.log();
   }
 });

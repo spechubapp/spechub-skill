@@ -24,7 +24,8 @@ for explicit approval:
   confirm **before running them**.
 
 Approval covers only the operations shown; several fully specified operations
-may share one approval. Token exchange is not a data write. If a write happens
+may share one approval. Token exchange and requirement standardization
+(`POST .../requirements/standardize`) are not data writes<!-- REQ 12.8 -->. If a write happens
 without approval, say so and offer a reversal where possible.
 
 ## Project context
@@ -59,7 +60,9 @@ context includes them.
 [requirement authoring](references/requirement-authoring.md) and label each
 proposal with its formulation type and source. The create and
 description-update scripts require `--formulation` and check only sentence
-structure; judge meaning and testability yourself.
+structure; judge meaning and testability yourself. Standardize every
+requirement you draft with `./scripts/standardize-requirements.js` before
+presenting it, as the authoring reference describes<!-- REQ 14.8 -->.
 
 **Releases.** Before suggesting or creating a requirement, list the releases
 from project context (no separate request) and ask which release number to use;
@@ -121,12 +124,25 @@ reconciliation, audit, or spec-versus-code review), follow
 
 - API calls take UUIDs. Resolve project slugs with `resolveProjectSlug()` and
   requirement/entity refs with `resolveRequirement()` / `resolveEntity()`.
+- When a message gives a SpecHub web URL, or a ref whose UUID or type you
+  need, get it with `./scripts/resolve.js <url>` or
+  `resolve.js <project> <ref>`: one request, instead of parsing the URL or
+  reading lists. It also prints the object's type (a ref may be a feature,
+  requirement, or entity) and project. Scripts that take `<ref-or-uuid>`
+  resolve refs themselves; pass refs to them directly<!-- REQ 8.11 -->.
 - In output, lead with refs (`1.23`, feature `4`) and link each object's
   `webUrl` with its ref or name as text. If `webUrl` is missing, fetch detail
   when practical; never invent URLs. Show UUIDs only when needed.
 - Prefer context for overviews and server-side filters (e.g. `refs=1.23,2.45`)
   for structured reads; avoid whole-project fetches and per-item detail loops.
   Run independent reads concurrently; use `fetchAll()` for complete lists.
+- To explore a project, such as finding the items related to a task or a
+  code change, search first with
+  `./scripts/search-project.js <project> <keywords>`: one request across
+  epics, features, requirements, releases, and discussions replaces paging
+  lists and reading details. Results include deprecated requirements without
+  marking them and report entities as requirements; search does not match
+  refs, so resolve those instead<!-- REQ 8.15 -->.
 - List items omit notes, source, acceptance criteria, replacements, and entity
   fields; fetch detail when needed. Deprecated requirements/entities are
   excluded unless `includeDeprecated=true`.

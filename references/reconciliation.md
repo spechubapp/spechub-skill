@@ -57,7 +57,9 @@ routes and views, API endpoints, commands and flags, validations, permissions,
 defaults, side effects, notifications, and scheduled jobs. Exclude internal
 helpers, refactoring, and incidental implementation detail. Check candidates
 against all of the project's requirements, including deprecated ones, not only
-those in scope; if one matches a deprecated requirement, say so. When
+those in scope; `./scripts/search-project.js <project> <keywords> --type
+requirement` finds candidates across the project, deprecated ones included. If
+one matches a deprecated requirement, say so. When
 reconciling a subset, look only at the code for that scope.
 
 ## Report
@@ -106,8 +108,8 @@ not just "doesn't match".
 Keep Passing entries to one line each. Offer every plausible action without
 choosing between them; the user decides whether the code or the requirement is
 right. Draft proposed requirements per
-[requirement authoring](requirement-authoring.md), with a formulation label
-and source, only for behavior that serves a product purpose; ask for their
+[requirement authoring](requirement-authoring.md), standardized, with a
+formulation label and source, only for behavior that serves a product purpose; ask for their
 release only when the user chooses to add them. The report goes in the conversation; for a long report, offer to save it to a
 file.
 
