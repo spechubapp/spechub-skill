@@ -52,11 +52,8 @@ cli.run(async () => {
     console.log(`\nNotes:\n${entity.notes}`);
   }
 
-  if (entity.acceptanceCriteria && entity.acceptanceCriteria.length > 0) {
-    console.log(`\nAcceptance Criteria:`);
-    entity.acceptanceCriteria.forEach((criterion, idx) => {
-      console.log(`  ${idx + 1}. ${criterion}`);
-    });
+  if (entity.acceptanceCriteria) {
+    console.log(`\nAcceptance Criteria:\n${entity.acceptanceCriteria}`);
   }
 
   if (entity.fields && entity.fields.length > 0) {

@@ -94,7 +94,7 @@ It prints the first page unless `--all` is given.
   # --type: Functional | Design | Performance
   # item flags: --status Untested|Passing|Failing|Deprecated, --release <uuid>,
   #   --secondary-feature <uuid>, --source, --notes, --business-critical true|false,
-  #   --acceptance-criteria (update only)
+  #   --acceptance-criteria <markdown> (update only)
   # requirement only: --test-coverage "No automated test"|"Has automated test"|"Needs automated test"
   # --replacement: the requirement replacing a Deprecated one (set with or after
   #   --status Deprecated); none removes it
@@ -125,9 +125,8 @@ releases; status, test coverage, and replacement changes are allowed.
 
 ## Direct API usage
 
-Write a script for what the scripts cannot express, such as project creation,
-acceptance-criteria arrays, or clearing a relationship with `null` (scripts
-send flag values as strings).
+Write a script for what the scripts cannot express, such as project creation
+or clearing a relationship with `null` (scripts send flag values as strings).
 
 ```javascript
 const cli = require("../lib/cli"); // from a file in scripts/

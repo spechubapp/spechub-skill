@@ -13,7 +13,7 @@
  *   --secondary-feature <feature-uuid>
  *   --source <text>
  *   --notes <text>
- *   --acceptance-criteria <text>
+ *   --acceptance-criteria <markdown>
  *   --business-critical true|false
  *   --test-coverage "No automated test"|"Has automated test"|"Needs automated test"
  *   --replacement <ref-or-uuid>|none   (requirement replacing this Deprecated one)

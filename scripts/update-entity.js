@@ -11,7 +11,7 @@
  *   --status Untested|Passing|Failing|Deprecated
  *   --source <text>
  *   --notes <text>
- *   --acceptance-criteria <text>
+ *   --acceptance-criteria <markdown>
  *   --business-critical true|false
  */
 const cli = require("../lib/cli");

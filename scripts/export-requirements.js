@@ -83,10 +83,8 @@ function renderRequirement(r, releases) {
       `Replaced by: ${link(r.replacement.name, r.replacement.url)}`,
     );
   if (r.notes) lines.push("", "Notes:", "", r.notes);
-  if (r.acceptanceCriteria?.length) {
-    lines.push("", "Acceptance criteria:", "");
-    r.acceptanceCriteria.forEach((c, i) => lines.push(`${i + 1}. ${c}`));
-  }
+  if (r.acceptanceCriteria)
+    lines.push("", "Acceptance criteria:", "", r.acceptanceCriteria);
   if (r.source) lines.push("", `Source: ${r.source}`);
   return lines.join("\n");
 }

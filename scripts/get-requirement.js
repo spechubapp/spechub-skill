@@ -65,14 +65,8 @@ cli.run(async () => {
     console.log(`\nNotes:\n${requirement.notes}`);
   }
 
-  if (
-    requirement.acceptanceCriteria &&
-    requirement.acceptanceCriteria.length > 0
-  ) {
-    console.log(`\nAcceptance Criteria:`);
-    requirement.acceptanceCriteria.forEach((criterion, idx) => {
-      console.log(`  ${idx + 1}. ${criterion}`);
-    });
+  if (requirement.acceptanceCriteria) {
+    console.log(`\nAcceptance Criteria:\n${requirement.acceptanceCriteria}`);
   }
 
   console.log();

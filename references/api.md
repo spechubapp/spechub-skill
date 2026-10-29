@@ -76,7 +76,7 @@ Shared requirement/entity fields:
 - `status`: `Untested` | `Passing` | `Failing` | `Deprecated`.
 - `releaseId`, `secondaryFeatureId`: UUIDs; PATCH accepts null to clear them.
 - `source`, `notes`: strings.
-- `acceptanceCriteria`: array of strings.
+- `acceptanceCriteria`: Markdown string, such as a bullet list.
 - `businessCritical`: boolean.
 
 `requirementType` is `Functional`, `Design`, or `Performance`.
@@ -93,7 +93,7 @@ Project `url` must be an absolute http or https URL; PATCH accepts null or
   "requirementType": "Functional",
   "status": "Untested",
   "releaseId": "<uuid>",
-  "acceptanceCriteria": ["..."],
+  "acceptanceCriteria": "- ...\n- ...",
   "businessCritical": false
 }
 ```
