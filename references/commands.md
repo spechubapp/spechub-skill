@@ -40,12 +40,13 @@ wins, with `urlMismatch: true` when the URLs differ).
 
 ./scripts/list-{epics,features,releases,userroles}.js <project>
 ./scripts/create-{epic,feature,release,userrole}.js <project> <name> [description]
+  # create-release.js also takes --shipped true|false and --shipped-date YYYY-MM-DD
 ./scripts/delete-{epic,feature,release,userrole}.js <uuid>
 ./scripts/get-{epic,feature,release}-context.js <uuid> [output.md]
 
 ./scripts/update-epic.js <uuid> [--name] [--description] [--notes] [--slug]
 ./scripts/update-feature.js <uuid> [--name] [--description] [--notes] [--source]
-./scripts/update-release.js <uuid> [--name] [--description] [--slug] [--shipped true|false]
+./scripts/update-release.js <uuid> [--name] [--description] [--slug] [--shipped true|false] [--shipped-date YYYY-MM-DD|none]
 ./scripts/update-userrole.js <uuid> [--name] [--description]
 
 ./scripts/get-epic-features.js <epic-uuid>
@@ -163,5 +164,6 @@ to `createClient()`; resolve each instance's identifiers with its own client.
 | `splitDescription(description, existingNotes)`                                 | `{ description, notes }` within the 300-character limit         |
 | `validateRequirementFormulation(description, formulation)`                     | Exit unless the description matches the formulation's structure |
 | `parseFlags(args, start)` / `positionals(args)` / `bool(value)`                | Argument parsing                                                |
+| `shippedDate(value)`                                                           | `--shipped-date` value: `YYYY-MM-DD`, or null for `none`        |
 | `buildBody(flags, spec)`                                                       | Map supplied flags to body keys, with optional transforms       |
 | `run(main)` / `abort(message)` / `usage(...lines)`                             | Error handling and exits                                        |

@@ -20,9 +20,10 @@ cli.run(async () => {
   if (releases.length === 0) return console.log("No releases found.");
 
   console.log(`\n=== Releases for project: ${project.name} ===\n`);
+  // REQ 9.8
   releases.forEach((r, i) => {
     console.log(
-      `${i + 1}. ${r.name}${r.shipped ? " ✓ shipped" : " (unshipped)"}`,
+      `${i + 1}. ${r.name}${r.shipped ? ` ✓ shipped ${r.shippedDate ?? ""}`.trimEnd() : " (unshipped)"}`,
     );
     console.log(`   ID: ${r.id}`);
     cli.printWebUrl(r, "   ");

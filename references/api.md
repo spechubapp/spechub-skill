@@ -27,7 +27,8 @@ Organizations support only `GET /api/v1/organization`. Raw context requests
 need `Accept: text/markdown` and `responseType: 'text'`.
 
 Deletes are permanent. Entity and entity-field deletes are idempotent (204);
-other deletes return 404 if absent.
+other deletes return 404 if absent. Only managers of the project's
+organization and System Administrators may delete a project; others get 403.
 
 ## Lists and responses
 
@@ -68,7 +69,7 @@ For PATCH, send only changed fields and omit the parent ID (`organizationId` /
 | Feature     | `projectId`, `name`                     | `description`, `source`, `notes`                                             | —                          |
 | Requirement | `projectId`, `featureId`, `description` | `requirementType`, `automatedTestCoverageType`, and shared item fields below | `replacementRequirementId` |
 | Entity      | `projectId`, `featureId`, `entityName`  | Shared item fields below                                                     | —                          |
-| Release     | `projectId`, `name`                     | `description`, `shipped` (boolean)                                           | `slug`                     |
+| Release     | `projectId`, `name`                     | `description`, `shipped` (boolean), `shippedDate`                            | `slug`                     |
 | User role   | `projectId`, `name`                     | `description`                                                                | —                          |
 
 Shared requirement/entity fields:
@@ -78,6 +79,11 @@ Shared requirement/entity fields:
 - `source`, `notes`: strings.
 - `acceptanceCriteria`: Markdown string, such as a bullet list.
 - `businessCritical`: boolean.
+
+`shippedDate` is a `YYYY-MM-DD` date, or null on PATCH to clear it. A release
+that is not shipped has no shipped date: `shippedDate` is ignored unless the
+release is shipped, and `shipped: false` clears it. A release that becomes
+shipped without one gets today's date in the user's timezone.
 
 `requirementType` is `Functional`, `Design`, or `Performance`.
 `automatedTestCoverageType` is `No automated test` (the default),

@@ -25,18 +25,18 @@ rules in this file<!-- REQ 18.4 -->.
 
 Guides name capabilities, not scripts. In this skill:
 
-| Guide term                        | In this skill                                                                                                  |
-| --------------------------------- | -------------------------------------------------------------------------------------------------------------- |
-| project context                   | `./scripts/get-project-context.js <project>` or `cli.getContext()` (see [Project context](#project-context))   |
-| feature, epic, or release context | `./scripts/get-{feature,epic,release}-context.js <uuid>`                                                       |
-| reading requirements in full      | `./scripts/export-requirements.js <project> [filters] --output <file>`, saved to a temporary directory         |
-| requirement detail                | `./scripts/get-requirement.js <project> <ref-or-uuid>`                                                         |
-| entity detail                     | `GET /api/v1/entity/{id}`; `./scripts/get-entity.js` omits field options, defaults, and validations            |
-| project search                    | `./scripts/search-project.js <project> <keywords> [--type requirement]`                                        |
+| Guide term                        | In this skill                                                                                                          |
+| --------------------------------- | ---------------------------------------------------------------------------------------------------------------------- |
+| project context                   | `./scripts/get-project-context.js <project>` or `cli.getContext()` (see [Project context](#project-context))           |
+| feature, epic, or release context | `./scripts/get-{feature,epic,release}-context.js <uuid>`                                                               |
+| reading requirements in full      | `./scripts/export-requirements.js <project> [filters] --output <file>`, saved to a temporary directory                 |
+| requirement detail                | `./scripts/get-requirement.js <project> <ref-or-uuid>`                                                                 |
+| entity detail                     | `GET /api/v1/entity/{id}`; `./scripts/get-entity.js` omits field options, defaults, and validations                    |
+| project search                    | `./scripts/search-project.js <project> <keywords> [--type requirement]`                                                |
 | standardization                   | `./scripts/standardize-requirements.js <project> <draft>...`, at most 20 per run<!-- REQ 14.8, REQ 14.9, REQ 14.10 --> |
-| write confirmation                | [Write confirmation](#write-confirmation) below                                                                |
-| the repository                    | The linked repository (see [Linked repositories](#linked-repositories))                                         |
-| a link to an item                 | The item's `webUrl`                                                                                            |
+| write confirmation                | [Write confirmation](#write-confirmation) below                                                                        |
+| the repository                    | The linked repository (see [Linked repositories](#linked-repositories))                                                |
+| a link to an item                 | The item's `webUrl`                                                                                                    |
 
 ## Write confirmation
 
@@ -55,27 +55,30 @@ Token exchange and requirement standardization
 
 Before any project-scoped suggestion or analysis, even about a single item,
 load `GET /api/v1/project/context?projectId=<uuid>` (reuse it within the task
-if still current). Account for its description, roles, entities and fields,
-features, and releases, and explain material influences such as existing
+if still current). Account for its description, roles, entities, features,
+and releases, and explain material influences such as existing
 capabilities, data-model constraints, and release scope. Add focused reads only
 for what it lacks.
 
 Context endpoints are `GET /api/v1/<resource>/context` and return Markdown:
 
-| Resource | Parameter   | Contents                                                                  |
-| -------- | ----------- | ------------------------------------------------------------------------- |
-| Project  | `projectId` | Description, brief, roles, entities and fields, features, epics, releases |
-| Epic     | `epicId`    | Epic, its features, and their requirements                                |
-| Feature  | `featureId` | Feature and its requirement descriptions                                  |
-| Release  | `releaseId` | Release, its features, and their requirements                             |
+| Resource | Parameter   | Contents                                                                          |
+| -------- | ----------- | --------------------------------------------------------------------------------- |
+| Project  | `projectId` | Description, brief, epics, features, entities, requirement count, roles, releases |
+| Epic     | `epicId`    | Epic, its features, and their requirements                                        |
+| Feature  | `featureId` | Feature and its requirement descriptions                                          |
+| Release  | `releaseId` | Release, its features, and their requirements                                     |
 
 Use `cli.getContext()` / `cli.printContext()`. Context gives each listed item's
-name and UUID (project, roles, entities, entity fields, epics, features,
-releases, and requirements), usable directly in API calls. Project context
-also gives feature refs and epic and release slugs; context has no requirement
-refs, statuses, `webUrl`s, or timestamps. Project context omits deprecated
-entities, epic and feature context omit deprecated requirements, and release
-context includes them.
+name and UUID (project, roles, entities, epics, features, releases, and
+requirements), usable directly in API calls. Project context also gives
+feature refs, epic and release slugs, whether each release is shipped, and
+each entity's field names; it does not list requirements, so read them from
+epic, feature, or release context or a requirement list. Entity field types,
+options, and UUIDs come from entity detail. Context has no requirement refs,
+statuses, `webUrl`s, or timestamps. Project context omits deprecated entities,
+epic and feature context omit deprecated requirements, and release context
+includes them.
 
 ## Requirements
 
