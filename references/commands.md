@@ -111,6 +111,16 @@ It prints the first page unless `--all` is given.
 `update-requirement.js` refuses content changes to requirements in shipped
 releases; status, test coverage, and replacement changes are allowed.
 
+## Comments
+
+```bash
+./scripts/create-comment.js <project> <ref-or-uuid> <body>
+./scripts/create-comment.js <project> <ref-or-uuid> --body-file <file.md>
+```
+
+`create-comment.js` adds a Markdown comment to a requirement's conversation.
+It is a data write.
+
 ## External references
 
 ```bash

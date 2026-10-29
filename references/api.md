@@ -202,6 +202,20 @@ requirement 2.45, `.../features` to the project. `type` is `project`, `epic`,
 canonical. An unknown or inaccessible object
 returns 404; an unparseable `url` or `ref` returns 400.
 
+## Comments
+
+`POST /api/v1/comment` adds a comment to a requirement's conversation and
+returns 201 with `{ data: { id, requirementId, body, created, webUrl } }`.
+
+```json
+{ "requirementId": "<uuid>", "body": "Implemented in `auth/login.ts`." }
+```
+
+`body` is Markdown, 1 to 50,000 characters. The comment is attributed to the
+PAT's owner, and SpecHub does not yet send notifications for it. The API
+cannot list, edit, or delete comments; project search finds them as
+`discussion` results.
+
 ## Project search
 
 `GET /api/v1/project/{projectId}/search` takes a required `searchTerm`,
