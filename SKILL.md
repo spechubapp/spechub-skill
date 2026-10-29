@@ -33,6 +33,7 @@ Guides name capabilities, not scripts. In this skill:
 | requirement detail                | `./scripts/get-requirement.js <project> <ref-or-uuid>`                                                                 |
 | entity detail                     | `./scripts/get-entity.js <project> <ref-or-uuid>`                                                                      |
 | project search                    | `./scripts/search-project.js <project> <keywords> [--type requirement]`                                                |
+| requirement comment               | `./scripts/create-comment.js <project> <ref-or-uuid> <body>`, or `--body-file <file.md>` for a long body               |
 | standardization                   | `./scripts/standardize-requirements.js <project> <draft>...`, at most 20 per run<!-- REQ 14.8, REQ 14.9, REQ 14.10 --> |
 | write confirmation                | [Write confirmation](#write-confirmation) below                                                                        |
 | the repository                    | The linked repository (see [Linked repositories](#linked-repositories))                                                |
