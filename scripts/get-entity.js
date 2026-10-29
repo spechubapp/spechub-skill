@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 /**
- * Get details of an entity by ref (e.g. "1.1") or UUID.
+ * Get details of an entity by ref (e.g. "1.1") or UUID, including each
+ * field's UUID, options, default, and validations. REQ 11.8
  * Usage: ./get-entity.js <project-slug> <entity-ref-or-uuid> [--instance <name>]
  *
  * Examples:
@@ -57,15 +58,42 @@ cli.run(async () => {
   }
 
   if (entity.fields && entity.fields.length > 0) {
+    // Name referenced entities; keep the UUID, which field updates resend.
+    const referenced = {};
+    if (entity.fields.some((f) => f.referencedEntityId)) {
+      const all = await cli.fetchAll(client, "/api/v1/entity", {
+        projectId: project.id,
+        includeDeprecated: true,
+      });
+      for (const e of all)
+        referenced[e.id] = `${e.entityName} (${e.fullyQualifiedRef}, ${e.id})`;
+    }
+
     console.log(`\nFields (${entity.fields.length}):`);
+    // Unset detail values are empty strings or arrays; print only set ones.
+    const details = [
+      ["references", "referencedEntityId"],
+      ["options", "options"],
+      ["default", "defaultValue"],
+      ["validations", "validations"],
+      ["group", "uiFieldGrouping"],
+      ["help", "helpText"],
+      ["sample", "sampleValue"],
+      ["notes", "notes"],
+    ];
     entity.fields.forEach((field) => {
       const required = field.required ? " [required]" : "";
       console.log(`  • ${field.name}: ${field.type}${required}`);
-      if (field.sampleValue) {
-        console.log(`    Sample: ${field.sampleValue}`);
-      }
-      if (field.notes) {
-        console.log(`    Notes: ${field.notes}`);
+      console.log(`      id: ${field.id}`);
+      for (const [label, key] of details) {
+        const value =
+          key === "referencedEntityId"
+            ? field[key] && (referenced[field[key]] ?? field[key])
+            : field[key];
+        if (Array.isArray(value) ? value.length : value)
+          console.log(
+            `      ${label}: ${Array.isArray(value) ? value.join(", ") : value}`,
+          );
       }
     });
   }

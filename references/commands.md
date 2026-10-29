@@ -85,7 +85,7 @@ It prints the first page unless `--all` is given.
   # full detail (notes, acceptance criteria, release) as Markdown by feature
 
 ./scripts/get-requirement.js <project> <ref-or-uuid>
-./scripts/get-entity.js <project> <ref-or-uuid>
+./scripts/get-entity.js <project> <ref-or-uuid>     # fields with UUIDs, options, defaults, validations
 
 ./scripts/create-requirement.js <project> <feature-uuid> <description> --formulation <type> [--type] [item flags]
 ./scripts/update-requirement.js <project> <ref-or-uuid> [--description <text> --formulation <type>] [--type] [--feature <uuid>] [--replacement <ref-or-uuid>|none] [item flags]

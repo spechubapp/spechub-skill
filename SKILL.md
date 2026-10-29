@@ -31,7 +31,7 @@ Guides name capabilities, not scripts. In this skill:
 | feature, epic, or release context | `./scripts/get-{feature,epic,release}-context.js <uuid>`                                                               |
 | reading requirements in full      | `./scripts/export-requirements.js <project> [filters] --output <file>`, saved to a temporary directory                 |
 | requirement detail                | `./scripts/get-requirement.js <project> <ref-or-uuid>`                                                                 |
-| entity detail                     | `GET /api/v1/entity/{id}`; `./scripts/get-entity.js` omits field options, defaults, and validations                    |
+| entity detail                     | `./scripts/get-entity.js <project> <ref-or-uuid>`                                                                      |
 | project search                    | `./scripts/search-project.js <project> <keywords> [--type requirement]`                                                |
 | standardization                   | `./scripts/standardize-requirements.js <project> <draft>...`, at most 20 per run<!-- REQ 14.8, REQ 14.9, REQ 14.10 --> |
 | write confirmation                | [Write confirmation](#write-confirmation) below                                                                        |
