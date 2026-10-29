@@ -12,21 +12,44 @@ license: MIT
 
 # SpecHub
 
+## Agent guides
+
+SpecHub serves the rules and procedures that every SpecHub agent follows, as
+guides. At the start of a task, list them with `./scripts/get-guide.js`, then
+read each guide whose description matches the task with
+`./scripts/get-guide.js <name>` before acting<!-- REQ 18.3 -->. Read a guide once per task. In
+particular, read `requirement-authoring` before drafting, reviewing, or
+improving any requirement<!-- REQ 14.13 -->, and `requirement-changes` before proposing any
+data write. If the instance does not serve guides, say so and follow only the
+rules in this file<!-- REQ 18.4 -->.
+
+Guides name capabilities, not scripts. In this skill:
+
+| Guide term                        | In this skill                                                                                                  |
+| --------------------------------- | -------------------------------------------------------------------------------------------------------------- |
+| project context                   | `./scripts/get-project-context.js <project>` or `cli.getContext()` (see [Project context](#project-context))   |
+| feature, epic, or release context | `./scripts/get-{feature,epic,release}-context.js <uuid>`                                                       |
+| reading requirements in full      | `./scripts/export-requirements.js <project> [filters] --output <file>`, saved to a temporary directory         |
+| requirement detail                | `./scripts/get-requirement.js <project> <ref-or-uuid>`                                                         |
+| entity detail                     | `GET /api/v1/entity/{id}`; `./scripts/get-entity.js` omits field options, defaults, and validations            |
+| project search                    | `./scripts/search-project.js <project> <keywords> [--type requirement]`                                        |
+| standardization                   | `./scripts/standardize-requirements.js <project> <draft>...`, at most 20 per run<!-- REQ 14.8, REQ 14.9, REQ 14.10 --> |
+| write confirmation                | [Write confirmation](#write-confirmation) below                                                                |
+| the repository                    | The linked repository (see [Linked repositories](#linked-repositories))                                         |
+| a link to an item                 | The item's `webUrl`                                                                                            |
+
 ## Write confirmation
 
-Before each data write (POST, PATCH, PUT, DELETE), show the following and wait
-for explicit approval:
+Before each data write (POST, PATCH, PUT, DELETE), wait for explicit approval.
+In addition to what the `requirement-changes` guide requires, show:
 
 - Method, endpoint path, and instance name and URL.
 - Complete JSON body; for PATCH, the changed fields.
-- For DELETE, the resource, and that deletion is permanent.
 - The exact command, when using a script. Scripts write immediately, so
   confirm **before running them**.
 
-Approval covers only the operations shown; several fully specified operations
-may share one approval. Token exchange and requirement standardization
-(`POST .../requirements/standardize`) are not data writes<!-- REQ 12.8 -->. If a write happens
-without approval, say so and offer a reversal where possible.
+Token exchange and requirement standardization
+(`POST .../requirements/standardize`) are not data writes<!-- REQ 12.8 -->.
 
 ## Project context
 
@@ -56,39 +79,18 @@ context includes them.
 
 ## Requirements
 
-**Authoring.** Before drafting, reviewing, or improving any requirement, read
-[requirement authoring](references/requirement-authoring.md) and label each
-proposal with its formulation type and source. The create and
-description-update scripts require `--formulation` and check only sentence
-structure; judge meaning and testability yourself. Standardize every
-requirement you draft with `./scripts/standardize-requirements.js` before
-presenting it, as the authoring reference describes<!-- REQ 14.8 -->.
+The guides set the rules for drafting and changing requirements. In this
+skill:
 
-**Releases.** Before suggesting or creating a requirement, list the releases
-from project context (no separate request) and ask which release number to use;
-resolve it to its UUID. If none matches, ask whether to create that release or
-leave the requirement unassigned. Omit `releaseId` only when the project has no
-releases or the user explicitly confirms no release; that confirmation is
-separate from write confirmation. Present suggestions only after the user
-answers, and include the release number with each.
-
-**Changes.** For an update, show the stored and proposed descriptions side by
-side with the ref and `webUrl` link, and apply only after acceptance. Before
-changing meaning, scope, type, acceptance criteria, or feature, check the
-current release. If it is shipped, create a replacement in an unshipped release
-and mark the old requirement `Deprecated` with the new one as its replacement
-(`replacementRequirementId`)<!-- REQ 16.4 -->; otherwise edit in place, or delete if the user
-wants it removed. Status, test coverage (`automatedTestCoverageType`), and
-replacement updates may always be made in place.
-
-**Length.** `description` is limited to 300 characters. The requirement scripts
-move overflow to the start of `notes` via `cli.splitDescription()`; direct API
-callers must do the same. Show the resulting body in the write confirmation.
-
-**Consistency.** To check a project's requirements against each other and
-against its roles, entities, and releases (contradictions, duplicates, or a
-review of the spec as a whole), follow
-[consistency](references/consistency.md).
+- The create and description-update scripts require `--formulation` and check
+  only sentence structure; judge meaning and testability yourself.
+- Ask for a release by its number and resolve it to its UUID from project
+  context, with no separate request. Omit `releaseId` for no release.
+- Replace a requirement in a shipped release with a new one, and set
+  `replacementRequirementId` on the old one when marking it `Deprecated`<!-- REQ 16.4 -->.
+- A requirement `description` holds at most 300 characters. The requirement
+  scripts move overflow to the start of `notes` via `cli.splitDescription()`;
+  direct API callers must do the same.
 
 ## Linked repositories
 
@@ -116,9 +118,25 @@ applies. Use the `feat` commit type only for work that adds a new feature to
 the SpecHub project; use `change` for work that adds or updates requirements
 in an existing feature<!-- REQ 6.7, REQ 6.8 -->.
 
-To compare a linked repository's implementation with its requirements (a
-reconciliation, audit, or spec-versus-code review), follow
-[reconciliation](references/reconciliation.md).
+## Audits
+
+The `consistency` and `reconciliation` guides define these read-only audits<!-- REQ 6.5, REQ 12.7 -->.
+In this skill:
+
+- Identify the project and instance with `./scripts/show-link.js <repo-path>`;
+  outside a linked repository, ask which project to check. Reconcile only a
+  linked repository.
+- For a consistency check, export the whole project without filters, since
+  requirements in scope are compared with every active requirement. For a
+  reconciliation, export the requirements in scope.
+- Keep exports and working files in a temporary directory, not the
+  repository.
+- Lead the report with the project and instance; for a reconciliation, give
+  the commit as `git rev-parse --short HEAD` and locations as
+  repository-relative `path:line`.
+- Report in the conversation; for a long report, offer to save it to a file.
+- Code fixes follow the linked-repository rules above, including `REQ`
+  comments.
 
 ## Reads and identifiers
 

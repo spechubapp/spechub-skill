@@ -98,6 +98,9 @@ Project `url` must be an absolute http or https URL; PATCH accepts null or
 }
 ```
 
+A requirement `description` holds at most 300 characters; move overflow to
+the start of `notes` with `cli.splitDescription()`.
+
 ## Requirement replacements
 
 A `Deprecated` requirement can point at the requirement that replaces it.
@@ -240,7 +243,7 @@ roles, entities, and entity fields. It creates and changes nothing.
 Results keep the input order, including duplicates. An empty or oversized list
 returns 400; an inaccessible project returns 404; if any description fails,
 the request returns 500. Vet results against project context and the
-authoring rules.
+`requirement-authoring` guide.
 
 ## Requirement improvements
 
@@ -250,7 +253,15 @@ Serialize IDs as one comma-separated parameter
 
 Response: `{ "requirementImprovements": { "<uuid>": "Suggested text" } }`.
 Requirements outside the project return 404; a failed item yields `""`. Vet
-suggestions against project context and the authoring rules.
+suggestions against project context and the `requirement-authoring` guide.
+
+## Agent guides
+
+`GET /api/v1/agentguide` lists SpecHub's agent guides as
+`{ "data": [{ "name": "...", "description": "..." }] }`, ordered by name and
+not paginated; each `description` says when to read the guide.
+`GET /api/v1/agentguide/{guideName}` returns one guide as `text/markdown`, or
+404 for an unknown name. Any authenticated user can read every guide.
 
 ## Entity fields
 

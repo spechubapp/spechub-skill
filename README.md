@@ -67,15 +67,11 @@ comments illustrate the convention but cannot be opened publicly.
 ## Documentation
 
 - [`SKILL.md`](SKILL.md): agent rules for writes, project context,
-  requirements, and identifiers.
+  requirements, and identifiers. SpecHub's rules for authoring, changing,
+  and auditing requirements come from its agent guides, which the skill reads
+  from the API with `./scripts/get-guide.js`.
 - [Commands](references/commands.md): scripts and library helpers.
 - [API](references/api.md): endpoints, bodies, filters, and errors.
-- [Requirement authoring](references/requirement-authoring.md): formulation
-  types and quality rules.
-- [Consistency](references/consistency.md): check a project's requirements
-  against each other.
-- [Reconciliation](references/reconciliation.md): check a linked repository
-  against its requirements.
 
 ## License
 

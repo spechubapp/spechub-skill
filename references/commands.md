@@ -52,6 +52,13 @@ wins, with `urlMismatch: true` when the URLs differ).
 ./scripts/set-epic-features.js <epic-uuid> <feature-uuid>...   # replaces the full set
 ```
 
+## Agent guides
+
+```bash
+./scripts/get-guide.js                        # every guide, with when to read it
+./scripts/get-guide.js <name> [output.md]     # one guide as Markdown
+```
+
 ## Resolve and search
 
 ```bash
