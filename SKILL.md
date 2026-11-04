@@ -92,6 +92,8 @@ skill:
   context, with no separate request. Omit `releaseId` for no release.
 - Replace a requirement in a shipped release with a new one, and set
   `replacementRequirementId` on the old one when marking it `Deprecated`<!-- REQ 16.4 -->.
+  Acceptance criteria changes are not content changes: edit them in place,
+  even in a shipped release<!-- REQ 10.10 -->.
 - A requirement `description` holds at most 300 characters. The requirement
   scripts move overflow to the start of `notes` via `cli.splitDescription()`;
   direct API callers must do the same.

@@ -109,7 +109,8 @@ It prints the first page unless `--all` is given.
 ```
 
 `update-requirement.js` refuses content changes to requirements in shipped
-releases; status, test coverage, and replacement changes are allowed.
+releases; status, test coverage, replacement, and acceptance criteria changes
+are allowed.
 
 ## Comments
 

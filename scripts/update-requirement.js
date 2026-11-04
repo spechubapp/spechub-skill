@@ -83,12 +83,13 @@ cli.run(async () => {
     body.replacementRequirementId = replacement.id;
   }
 
-  // Status, test coverage, and replacement changes never alter the content.
-  // REQ 10.7
+  // Status, test coverage, replacement, and acceptance criteria changes do
+  // not alter the requirement itself. REQ 10.10
   const inPlaceKeys = [
     "status",
     "automatedTestCoverageType",
     "replacementRequirementId",
+    "acceptanceCriteria",
   ];
   if (Object.keys(body).some((key) => !inPlaceKeys.includes(key))) {
     await cli.abortIfShipped(
