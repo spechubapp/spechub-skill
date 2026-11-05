@@ -223,8 +223,10 @@ changed no field or only the replacement.
 3339; comments created at or after it), `cursor`, and `limit`, and lists the
 project's comments oldest first. `GET /api/v1/comment/{commentId}` returns one
 comment in `data`. `DELETE /api/v1/comment/{commentId}` deletes a comment; only
-its author may, others get 403. Deleted comments are never listed, and getting
-one returns 404. The API cannot edit comments. Project search also finds
+its author may, others get 403; deleting a deleted comment succeeds. SpecHub
+replaces the body with `*This comment has been deleted*`, which stays in the
+web app's conversation. Deleted comments are never listed, and getting one
+returns 404. The API cannot edit comments. Project search also finds
 comments, as `discussion` results.
 
 ## Project search

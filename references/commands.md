@@ -115,12 +115,25 @@ are allowed.
 ## Comments
 
 ```bash
-./scripts/create-comment.js <project> <ref-or-uuid> <body>
-./scripts/create-comment.js <project> <ref-or-uuid> --body-file <file.md>
+./scripts/create-comment.js <project> <ref-or-uuid> <body> [--journal-entry <uuid>]
+./scripts/create-comment.js <project> <ref-or-uuid> --body-file <file.md> [--journal-entry <uuid>]
+./scripts/update-requirement.js <project> <ref-or-uuid> --status <status> --comment <body>   # or --comment-file <file.md>
+./scripts/list-comments.js <project> [--since <time>]   # oldest first; RFC 3339 time or YYYY-MM-DD (UTC)
+./scripts/get-comment.js <comment-uuid>
+./scripts/delete-comment.js <comment-uuid>              # author only
 ```
 
-`create-comment.js` adds a Markdown comment to a requirement's conversation.
-It is a data write.
+`create-comment.js` adds a Markdown comment to a requirement's conversation;
+`--journal-entry` makes it a reply to an entry in the requirement's change
+history, which SpecHub quotes at the start of the comment.
+`update-requirement.js` prints the journal entry recording each update. With
+`--comment` or `--comment-file`, it adds the comment as a reply to that entry
+after the update succeeds, so one approval covers a status change and its
+evidence. It skips the comment when the update records no entry, which happens
+when nothing changed or only the replacement did. `delete-comment.js` replaces
+the body with a placeholder that stays in the web app's conversation; the API
+no longer returns the comment. Creating, updating, and deleting are data
+writes.
 
 ## External references
 

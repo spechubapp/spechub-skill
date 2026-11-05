@@ -17,6 +17,10 @@
  *   --business-critical true|false
  *   --test-coverage "No automated test"|"Has automated test"|"Needs automated test"
  *   --replacement <ref-or-uuid>|none   (requirement replacing this Deprecated one)
+ *   --comment <markdown> | --comment-file <file.md>
+ *       After the update succeeds, add this comment as a reply to the journal
+ *       entry recording it, e.g. the evidence for a status change. Skipped
+ *       when the update records no entry. REQ 19.5, REQ 19.6
  */
 const cli = require("../lib/cli");
 
@@ -28,8 +32,9 @@ if (!projectSlug || !refOrId) {
     "Usage: ./update-requirement.js <project-slug> <requirement-ref-or-uuid> [options]",
     "Options: --description, --formulation <type>, --type, --status, --feature <uuid>, --release <uuid>,",
     "         --secondary-feature <uuid>, --source, --notes, --acceptance-criteria, --business-critical true|false,",
-    "         --test-coverage <type>, --replacement <ref-or-uuid>|none",
+    "         --test-coverage <type>, --replacement <ref-or-uuid>|none, --comment <markdown> | --comment-file <file.md>",
     "Example: ./update-requirement.js spechub 1.23 --status Passing",
+    'Example: ./update-requirement.js spechub 1.23 --status Passing --comment "Tests in `auth.test.js` pass."',
     "Example: ./update-requirement.js spechub 1.23 --status Deprecated --replacement 1.31",
   );
 }
@@ -57,6 +62,15 @@ cli.run(async () => {
 
   if (Object.keys(body).length === 0 && flags.replacement === undefined)
     cli.abort("provide at least one field to update");
+  if (flags.comment !== undefined && flags["comment-file"] !== undefined)
+    cli.abort("give --comment or --comment-file, not both");
+  if (flags.comment === true || flags["comment-file"] === true)
+    cli.abort("--comment needs text and --comment-file needs a path");
+  // Read the comment before the update, so a bad file fails without a write.
+  const commentBody =
+    flags.comment !== undefined || flags["comment-file"] !== undefined
+      ? cli.readCommentBody(flags.comment, flags["comment-file"])
+      : null;
   if (flags.replacement === true)
     cli.abort("--replacement needs a requirement ref or UUID, or none");
 
@@ -111,6 +125,7 @@ cli.run(async () => {
 
   const res = await client.patch(`/api/v1/requirement/${requirement.id}`, body);
   const req = res.data.data;
+  const { journalEntryId } = res.data;
 
   console.log(`\nRequirement updated successfully!\n`);
   console.log(`  Ref:    ${req.fullyQualifiedRef}`);
@@ -126,5 +141,35 @@ cli.run(async () => {
       `  Notes: ${req.notes.slice(0, 100)}${req.notes.length > 100 ? "..." : ""}`,
     );
   console.log(`  ID:     ${req.id}`);
+  // REQ 19.4
+  if (journalEntryId) console.log(`  Journal entry: ${journalEntryId}`);
   cli.printWebUrl(req);
+
+  if (commentBody === null) return;
+  // SpecHub records no entry when nothing changed or only the replacement
+  // did, and a reply needs one. REQ 19.6
+  if (!journalEntryId) {
+    console.log(
+      "\nComment skipped: the update recorded no journal entry to reply to.",
+    );
+    return;
+  }
+  // REQ 19.5
+  try {
+    const comment = await cli.addComment(
+      client,
+      req.id,
+      commentBody,
+      journalEntryId,
+    );
+    console.log(
+      `\nComment added as a reply to journal entry ${journalEntryId}\n`,
+    );
+    cli.printComment(comment);
+  } catch (err) {
+    cli.abort(
+      `the requirement was updated, but the comment failed: ${err.response?.data?.detail || err.message}. ` +
+        `Retry with ./create-comment.js <project> ${req.fullyQualifiedRef} <body> --journal-entry ${journalEntryId}`,
+    );
+  }
 });
