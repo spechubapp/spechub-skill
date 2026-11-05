@@ -212,9 +212,20 @@ returns 201 with `{ data: { id, requirementId, body, created, webUrl } }`.
 ```
 
 `body` is Markdown, 1 to 50,000 characters. The comment is attributed to the
-PAT's owner, and SpecHub does not yet send notifications for it. The API
-cannot list, edit, or delete comments; project search finds them as
-`discussion` results.
+PAT's owner, and SpecHub does not yet send notifications for it. An optional
+`journalEntryId` makes the comment a reply to an entry in the requirement's
+change history; the entry must belong to that requirement, and SpecHub
+prefixes the body with a quote of it. A requirement `PATCH` response returns
+the `journalEntryId` of the entry recording the update, omitted when the update
+changed no field or only the replacement.
+
+`GET /api/v1/comment` takes a required `projectId`, an optional `since` (RFC
+3339; comments created at or after it), `cursor`, and `limit`, and lists the
+project's comments oldest first. `GET /api/v1/comment/{commentId}` returns one
+comment in `data`. `DELETE /api/v1/comment/{commentId}` deletes a comment; only
+its author may, others get 403. Deleted comments are never listed, and getting
+one returns 404. The API cannot edit comments. Project search also finds
+comments, as `discussion` results.
 
 ## Project search
 
